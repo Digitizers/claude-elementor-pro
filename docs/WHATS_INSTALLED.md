@@ -27,14 +27,15 @@ A one-page reference of every file, plugin, and tool the kit touches. Useful whe
 | **Hello Elementor** *(theme)* | Blank canvas theme. Other themes inject CSS that fights Elementor. | You manually *(theme switch isn't via REST in all WP versions)* |
 | **Ultimate Addons for Elementor (UAE)** | Builds site-wide headers/footers (Theme Builder is Pro-only). Includes a free Nav Menu widget. | You manually OR wizard step 6 |
 | **MCP Adapter** | The "phone line" that lets any AI server talk to WordPress. | Wizard step 7 *(automatic — from GitHub)* |
-| **MCP Tools for Elementor** | The Elementor-specific MCP server. Exposes ~75 Elementor tools to Claude. | Wizard step 7 *(automatic — from GitHub)* |
+| **MCP Tools for Elementor** | The Elementor-specific MCP server. Exposes ~75 Elementor tools (~100+ when Elementor Pro is active). | Wizard step 7 *(automatic — from GitHub)* |
 
 ### Optional but useful
 
 | Plugin | What it does | Installed by |
 |---|---|---|
+| **Elementor Pro** | Unlocks native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion. **Auto-detected** by the kit — when active, the wizard skips UAE + Fluent Forms and Claude uses native Pro tools. | **You** *(paid; not on wp.org — the kit can't install it, only detect it)* |
 | **Essential Addons (lite)** | Free widgets like Post Grid that aren't in Elementor base | Wizard step 6 *(if you opt in)* |
-| **Fluent Forms** | Real working contact forms (Elementor's Form widget is Pro) | Wizard step 6 *(if you opt in)* |
+| **Fluent Forms** | Real working contact forms (free-tier workaround; not needed with Pro) | Wizard step 6 *(if you opt in, free tier only)* |
 
 ### What gets created on the site itself
 
@@ -86,7 +87,8 @@ Nothing destructive happens to existing content unless you explicitly ask Claude
 1. **`INSTALL.sh` / `INSTALL.bat`** copies `SKILL.md` and `setup-elementor-mcp.sh` into `~/.claude/`. That's it for the kit's local install.
 
 2. **`setup-elementor-mcp.sh` (the wizard)** does the WordPress side:
-   - **Step 6** *(optional, asks first)* — REST-installs Elementor + UAE + Hello Elementor theme + optional Essential Addons & Fluent Forms from wordpress.org
+   - **Step 5** — reports which baseline plugins are active, **including whether Elementor Pro is detected**
+   - **Step 6** *(optional, asks first)* — REST-installs Elementor + Hello Elementor theme + optional Essential Addons from wordpress.org. On the **free tier** it also offers UAE + Fluent Forms; when **Pro is detected** it skips those (Pro covers headers/footers + forms natively)
    - **Step 7** *(automatic)* — downloads MCP Adapter and MCP Tools for Elementor from GitHub releases, repacks them with clean folder names, and installs via WP-CLI (Local sites) or asks you to upload via WP Admin (live sites)
 
 3. **`.mcp.json`** is written to your current directory — this is what Claude Code reads to know which WordPress site to connect to.

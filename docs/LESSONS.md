@@ -184,9 +184,15 @@ The `f8d1545` is the `element_id` returned when the widget was created. Always g
 
 ---
 
-## Forms (free Elementor)
+## Forms
 
-Elementor's Form widget is **Pro**. The free path:
+**If Pro is active:** the `add-form` MCP tool builds a real, submitting Form
+widget natively — no Fluent Forms, no shortcode, fully editable in Elementor. The
+kit auto-detects Pro and the skill routes here. Confirm field/action keys via
+`get-widget-schema({ widget_type: "form" })` before building.
+
+**If free (fallback):** Elementor's Form widget is Pro and `add-form` isn't
+exposed. The free path:
 
 1. Build the form in **Fluent Forms** (or WPForms / CF7) — these have free plans
 2. Get the shortcode (e.g., `[fluentform id="1"]`)
@@ -196,25 +202,33 @@ If you're at the visual-build stage and forms aren't wired yet, an HTML `<form>`
 
 ---
 
-## Header / Footer (free Elementor)
+## Header / Footer
 
-Theme Builder is **Pro**. The free path uses **Header Footer Elementor (HFE)** by Brainstorm Force or UAE:
+**If Pro is active:** use the native **Theme Builder** via `create-theme-template`
+(`header` / `footer` / `single` / `archive`) + the native Nav Menu widget — no
+UAE/HFE plugin. The kit detects Pro and the skill routes here.
+
+**If free (fallback):** Theme Builder is Pro. The free path uses **Header Footer Elementor (HFE)** by Brainstorm Force or UAE:
 
 1. Install + activate HFE
 2. **WP Admin → Header Footer Builder → Add New** → set Type: Header (or Footer), Display On: Entire Website
 3. Edit with Elementor — the MCP can edit this template the same way it edits any page (find its post_id via `list-pages({post_type: "elementor-hf"})`)
 
-For a transparent header that swaps to solid on scroll: **Pro Sticky / Motion Effects only.** Free workaround is either keep it solid throughout, or hand-write a small CSS snippet via Customizer → Additional CSS.
+For a transparent header that swaps to solid on scroll: with **Pro**, set the
+header Container's **Sticky** (`Top`) + a sticky-state background, and use **Motion
+Effects** natively. Free workaround is either keep it solid throughout, or
+hand-write a small CSS snippet via Customizer → Additional CSS.
 
 ---
 
 ## What the MCP cannot do (set expectations early)
 
-- Install plugins or themes (use WP-CLI or WP Admin)
+- Install plugins or themes, including **Elementor Pro** itself (paid, not on wp.org — the kit only detects it; use WP-CLI or WP Admin)
 - Set the static front page (use `wp option update show_on_front page; wp option update page_on_front <id>`)
-- Pixel-perfect HTML→Elementor translation — Elementor's flexbox container model is the ceiling
-- Drive Pro features (Theme Builder, Loop Grid, Form widget, Sticky/Motion Effects, Popup, Display Conditions, Custom CSS per element)
+- Pixel-perfect HTML→Elementor translation — Elementor's flexbox container model is the ceiling (Pro adds CSS Grid containers)
 - Auto-fix broken layouts — you read the rendered output and emit corrective `update-element` calls
+
+**Pro features (Theme Builder, Loop Grid, Form widget, Sticky/Motion, Popups, Dynamic Tags) are driven natively when Pro is active** — they're auto-detected. They're only unavailable on the free tier, where the workarounds above apply.
 
 ---
 

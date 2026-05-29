@@ -1,6 +1,6 @@
 ---
 name: elementor-mcp
-description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/elementor-mcp`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
+description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro and uses native Pro widgets (Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion) when present, falling back to free-tier workarounds otherwise. Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/elementor-mcp`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
 ---
 
 # Elementor MCP Skill
@@ -65,6 +65,34 @@ mcp__elementor__elementor-mcp-list-pages   # confirms auth + lists existing page
 mcp__elementor__elementor-mcp-get-global-settings   # see existing colors/fonts kit
 mcp__elementor__elementor-mcp-get-container-schema  # ground truth on flex_* key names
 ```
+
+### 🎯 Detect Pro vs Free FIRST — it changes which path you take
+
+Before building anything, determine whether **Elementor Pro** is active. The
+whole skill branches on this: with Pro you use native widgets (Form, Theme
+Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion); without it you use the
+free-tier workarounds documented further down (Fluent Forms, UAE/HFE, HTML for
+motion).
+
+**How to detect — by tool availability, not the buggy version tool:**
+
+The elementor-mcp server exposes Pro tools **conditionally**. When Pro is active
+the tool list grows from ~74 to ~100+ tools and Pro-only tools appear. Check
+whether these exist in your available `mcp__elementor__elementor-mcp-*` tools:
+
+- `add-form` — present ⇒ **Pro active**
+- `create-theme-template` — present ⇒ **Pro active**
+- `add-loop-grid` / `add-loop-carousel` — present ⇒ **Pro active**
+- `create-popup`, `set-dynamic-tag` — present ⇒ **Pro active**
+
+If none of those Pro tools are exposed, treat the site as **Free** and use the
+workarounds. **Do NOT call `detect-elementor-version`** — it errors in v1.5.0
+(`elementor_pro_version` null vs. schema `string`, see Setup gotchas).
+
+> **Record the verdict once** ("Pro detected" / "Free only") and state it to the
+> user up front, then follow the matching branch in every section below. Each
+> "Forms", "Header/Footer", and motion section is written as **If Pro → … /
+> If Free → …**. Don't mix paths.
 
 The container schema is large (~50KB). Read it once, then write down the keys you'll use in your reply text so you don't need to re-fetch it. Critical keys:
 
@@ -163,6 +191,8 @@ Earlier versions of this skill said "use one HTML widget for card grids — it's
 
 This is more widget calls, yes, but the result is a **real Elementor card grid** the user can edit, restyle globally, or reuse as a template.
 
+> **If Pro is active and the cards are driven by posts/CPT/products** (a blog feed, portfolio, listings), prefer the native **Loop Grid** (`add-loop-grid`) instead — see the Loop Grid section below. The duplicate-element pattern is still the right answer for a fixed set of bespoke, non-dynamic cards on either tier.
+
 ### Cross-widget styling — `<style>`-only HTML widgets
 
 When you need to style a native widget from outside (e.g., overriding the Tabs widget tab strip styles that the widget controls don't expose), use a **`<style>`-only HTML widget**: it contains ONLY a `<style>` block — no markup, no rendered content. Scope every selector to the parent Elementor element ID:
@@ -231,7 +261,33 @@ Then ask which mode they want.
 
 ## Header/Footer notes
 
-The MCP plugin's `create-theme-template` tool requires **Elementor Pro**. With Elementor Free, headers and footers are built using **Ultimate Addons for Elementor (UAE)** by Brainstorm Force (the kit's setup wizard auto-installs this; alternatively the lighter **Header Footer Elementor (HFE)** plugin from the same company also works — both share the same `elementor-hf` post type).
+Branch on the Pro detection from the top of this skill.
+
+### If Pro → native Theme Builder (preferred)
+
+With Elementor Pro active, build headers/footers/single/archive templates with the
+native **Theme Builder** via the `create-theme-template` MCP tool — no UAE/HFE
+plugin needed.
+
+1. **Create the template.** `create-theme-template` with the template type:
+   - `header`, `footer`, `single` (single post/page), `archive` (post listings).
+   The tool returns a `post_id` you build into like any page.
+2. **Build the layout** into that `post_id` with native widgets — a row Container
+   with logo (Site Logo widget) + native **Nav Menu** widget (`add-nav-menu`,
+   Pro) pointed at a WP menu by name + a Button CTA.
+3. **Set display conditions** so the template applies site-wide (or to a subset).
+   Theme Builder display conditions are Pro-native; configure "Entire Site" for a
+   global header/footer.
+4. **Verify** by curling the front page — the header/footer should render on every
+   matching page.
+
+> The WordPress **menu itself** still must exist first (WP Admin → Appearance →
+> Menus) — the MCP cannot create WP nav menus directly, on either tier. Point the
+> Nav Menu widget at it by name.
+
+### If Free → UAE / HFE workaround (fallback)
+
+`create-theme-template` is **not exposed** without Pro. With Elementor Free, headers and footers are built using **Ultimate Addons for Elementor (UAE)** by Brainstorm Force (the kit's setup wizard auto-installs this; alternatively the lighter **Header Footer Elementor (HFE)** plugin from the same company also works — both share the same `elementor-hf` post type).
 
 ### Building a site-wide header
 
@@ -258,9 +314,120 @@ If only HFE (the lighter plugin) is installed without UAE: use the Shortcode wid
 
 Identical post type (`elementor-hf`) but `ehf_template_type = "type_footer"`. Layout is typically a 4-column container (brand block + 3 link columns) on a dark background, with a bottom row containing copyright + social icons.
 
-### Forms — Fluent Forms (the recommended path)
+## Pro-only widgets & features
 
-Elementor's native Form widget is Pro. The kit's wizard auto-installs **Fluent Forms** as the free workaround. The flow is split: the user builds the form, then Claude wires it into the page and styles it.
+These sections apply **only when Pro was detected** at the top of the skill. If
+the site is Free, these tools are not exposed — use the documented free-tier
+patterns instead (Loop Grid → duplicate-element grid; Popups → no equivalent;
+Dynamic Tags → static content; Sticky/Motion → Customizer CSS).
+
+> The widget-vs-HTML anti-pattern still applies in full. Pro widgets give you
+> *more* native building blocks, which is **more** reason never to dump HTML.
+
+### Loop Grid / Loop Carousel — dynamic listings
+
+`add-loop-grid` (and `add-loop-carousel`) render a repeating template across a
+query of posts/CPTs/products — the native, editable replacement for hand-built
+card grids when the content is dynamic.
+
+1. **Build the loop item template** — a small Container with the card layout
+   (Image → Heading → Text → Button) wired to **Dynamic Tags** (post title,
+   featured image, excerpt, permalink) so every item pulls its own data.
+2. **Add the Loop Grid** with `add-loop-grid`, point it at that template, and set
+   the query (post type, count, order) + columns/gap via the widget's settings.
+3. Confirm exact setting keys with `get-widget-schema({ widget_type: "loop-grid" })`
+   before building.
+
+Use this for blog feeds, portfolios, team grids, product listings. For a fixed
+set of bespoke non-dynamic cards, the `duplicate-element` pattern is still correct.
+
+### Popups
+
+`create-popup` builds a popup template; then configure triggers / conditions /
+timing (on load, on scroll %, exit intent, after delay; display conditions for
+which pages it shows on).
+
+1. `create-popup` → returns a `post_id`; build the popup content into it with
+   native widgets like any page.
+2. Set trigger + display rules via the popup's settings (load `get-widget-schema`
+   / the popup settings schema to confirm keys).
+3. Wire an open action where needed (e.g. a Button's link set to the popup), or
+   let the trigger fire it automatically.
+
+### Dynamic Tags
+
+`set-dynamic-tag` binds live data to a widget setting instead of a static value —
+post title/excerpt/featured image, author, site name/logo, ACF/custom fields,
+archive title, etc.
+
+- Use it to make Theme Builder templates (single/archive) and Loop Grid items
+  data-driven.
+- Bind on the specific setting (e.g. a Heading's `title`, an Image's `image`) via
+  `set-dynamic-tag` pointing at the source tag + its options.
+
+### Sticky header & Motion Effects
+
+These are the Pro-native answer to the free-tier "solid header / Customizer CSS"
+note.
+
+- **Transparent-on-top → solid-on-scroll header:** set the header Container's
+  **Sticky** to `Top` plus a sticky-state background, instead of hand-writing a
+  scroll listener. Configure via the container's sticky/effects settings.
+- **Motion Effects** (scrolling/mouse parallax, entrance animations, transforms)
+  are exposed as element settings — set them on the target element rather than
+  emitting custom JS/CSS.
+- Confirm the effects setting keys via `get-container-schema` / the element's
+  widget schema before writing them.
+
+## Forms
+
+Branch on the Pro detection from the top of this skill.
+
+### If Pro → native Form widget (preferred)
+
+With Pro active the `add-form` MCP tool is exposed — build a real, submitting form
+as a native widget with no third-party plugin. The whole form (fields, labels,
+submit action, email notification) lives in Elementor and is editable in the
+visual editor.
+
+**Build pattern** — `add-form` into the contact-section container, then define
+fields and the submit/email actions. Document and pass the form's settings the
+same disciplined way the Fluent Forms class map below is documented:
+
+```js
+// Native Pro Form widget — placed in the contact section container
+mcp__elementor__elementor-mcp-add-form({
+  post_id: <page_id>,
+  parent_id: <contact_section_container_id>,
+  form_name: "Contact",
+  // fields as the form-widget schema defines them (id/type/label/required/width);
+  // load get-widget-schema for "form" first to confirm exact field-array keys
+  form_fields: [
+    { custom_id: "name",    field_type: "text",     field_label: "Name",    required: "true", width: "50" },
+    { custom_id: "email",   field_type: "email",    field_label: "Email",   required: "true", width: "50" },
+    { custom_id: "message", field_type: "textarea", field_label: "Message", required: "true", width: "100" }
+  ],
+  button_text: "Send",
+  // Submit actions: "email" is the default; set the To address in the email action group.
+  submit_actions: ["email"],
+  email_to: "<site admin email>"
+})
+```
+
+- **Confirm field/action key names against the live schema** before building:
+  `get-widget-schema({ widget_type: "form" })`. The form widget's field array and
+  action keys are the part most likely to drift between Pro versions — treat the
+  schema as ground truth, exactly as with the container schema.
+- **Styling** native form fields uses the widget's own style controls (typography,
+  spacing, borders, button) passed as flat params — no scoped CSS hack needed. Only
+  drop to a `<style>`-only HTML widget for things the controls don't expose, scoped
+  to the form's `element_id` (same rule as everywhere else).
+- This replaces the entire Fluent Forms split below — **don't** install Fluent
+  Forms when Pro is present.
+
+### If Free → Fluent Forms (fallback)
+
+Elementor's native Form widget is Pro, and `add-form` is **not exposed** without it. The kit's wizard auto-installs **Fluent Forms** as the free workaround. The flow is split: the user builds the form, then Claude wires it into the page and styles it.
 
 #### The split — what Claude does vs. what the user does
 
@@ -442,11 +609,13 @@ Use `ToolSearch` query format `select:tool1,tool2,tool3` to load multiple in one
 
 ## What the MCP **cannot** do (set expectations)
 
-- Install plugins or themes (use WP-CLI or WP Admin instead)
+- Install plugins or themes (use WP-CLI or WP Admin instead) — including **Elementor Pro itself** (paid, not on wp.org; the kit only *detects* it)
 - Set the static front page (use `wp option update`)
-- Build a custom header/footer on Elementor Free without the HFE plugin
+- Build a custom header/footer on Elementor Free without the HFE plugin *(with Pro, use native Theme Builder via `create-theme-template`)*
 - Auto-translate arbitrary HTML/CSS into Elementor widgets — you read the source design and emit widget calls
-- Pixel-perfect parity with hand-coded HTML — Elementor's flexbox container model is the ceiling
+- Pixel-perfect parity with hand-coded HTML — Elementor's flexbox container model is the ceiling *(Pro adds CSS Grid containers, raising it)*
+
+**Pro features are NOT a limitation when Pro is active** — Form widget, Theme Builder, Loop Grid, Popups, Dynamic Tags, and Sticky/Motion are all driven natively (see the Pro sections above). They're only unavailable on the Free tier, where the documented workarounds apply.
 
 ## Quick reference — the build flow that works *(mode 1 only)*
 

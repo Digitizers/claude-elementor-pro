@@ -356,26 +356,75 @@ print(d[0]["stylesheet"] if isinstance(d, list) and d else "?")
 
 # Report current state
 HAS_ELEMENTOR=$(plugin_is_active "elementor")
+HAS_PRO=$(plugin_is_active "elementor-pro")
 HAS_UAE=$(plugin_is_active "header-footer-elementor")
 HAS_EA=$(plugin_is_active "essential-addons-for-elementor-lite")
 HAS_FF=$(plugin_is_active "fluentform")
 
 [ "$HAS_ELEMENTOR" = "yes" ] && ok "Elementor (free) — active" || warn "Elementor — not active"
+if [ "$HAS_PRO" = "yes" ]; then
+  ok "Elementor Pro — active (native Form, Theme Builder, Loop Grid, Popups available)"
+else
+  info "Elementor Pro — not active (free tier; using UAE + Fluent Forms workarounds)"
+fi
 [ "$ACTIVE_THEME" = "hello-elementor" ] && ok "Theme: Hello Elementor — active" || warn "Theme: $ACTIVE_THEME (Hello Elementor recommended)"
-[ "$HAS_UAE" = "yes" ] && ok "UAE / Header Footer Elementor — active" || warn "UAE / Header Footer Elementor — not active (needed for headers/footers)"
+# UAE/HFE is only needed for headers/footers on the FREE tier — Pro has Theme Builder.
+if [ "$HAS_PRO" = "yes" ]; then
+  [ "$HAS_UAE" = "yes" ] && ok "UAE / Header Footer Elementor — active (optional; Pro Theme Builder covers this)" || info "UAE / Header Footer Elementor — not needed (Pro Theme Builder covers headers/footers)"
+else
+  [ "$HAS_UAE" = "yes" ] && ok "UAE / Header Footer Elementor — active" || warn "UAE / Header Footer Elementor — not active (needed for headers/footers)"
+fi
 
 # ---- 6. Optional auto-install of baseline plugins ----------------------------
 step "6/8  Auto-install baseline plugins?"
 
+# With Pro active, the UAE + Fluent Forms workarounds are unnecessary — Pro's
+# native Theme Builder and Form widget cover those. So Pro changes both what
+# counts as "missing baseline" and what we offer to install.
 NEEDS_ANY="no"
 [ "$HAS_ELEMENTOR" != "yes" ] && NEEDS_ANY="yes"
-[ "$HAS_UAE" != "yes" ] && NEEDS_ANY="yes"
+[ "$HAS_PRO" != "yes" ] && [ "$HAS_UAE" != "yes" ] && NEEDS_ANY="yes"
 [ "$ACTIVE_THEME" != "hello-elementor" ] && NEEDS_ANY="yes"
+
+if [ "$HAS_PRO" = "yes" ]; then
+  info "Elementor Pro detected — skipping UAE + Fluent Forms (Pro covers headers/footers + forms natively)."
+fi
 
 if [ "$NEEDS_ANY" = "no" ]; then
   ok "All baseline plugins + theme already in place — skipping auto-install."
 else
-  cat <<EOF
+  if [ "$HAS_PRO" = "yes" ]; then
+    cat <<EOF
+    Some baseline pieces aren't yet active on this site.
+    The wizard can install them for you from wordpress.org:
+
+      • Elementor (free)         — base for Elementor Pro
+      • Hello Elementor (theme)  — blank canvas theme
+      • Essential Addons (lite)  — extra free widgets (optional)
+
+    ${YELLOW}Note:${RESET} Pro is active — no UAE or Fluent Forms needed.
+    Auto-install is safest on a fresh demo site. If this is an existing
+    site you care about, choose 'No' and install manually.
+EOF
+    ask "Auto-install Elementor (free base)? [Y/n]"
+    read -r DO_INSTALL
+    if [[ ! "$DO_INSTALL" =~ ^[Nn]$ ]]; then
+      [ "$HAS_ELEMENTOR" != "yes" ] && install_wp_plugin "elementor" "Elementor (free)"
+
+      if [ "$ACTIVE_THEME" != "hello-elementor" ]; then
+        ask "Also install Hello Elementor theme? (Switch theme manually after.) [Y/n]"
+        read -r DO_THEME
+        [[ ! "$DO_THEME" =~ ^[Nn]$ ]] && install_wp_theme "hello-elementor" "Hello Elementor"
+      fi
+
+      ask "Also install Essential Addons (optional but useful)? [y/N]"
+      read -r DO_OPT
+      [[ "$DO_OPT" =~ ^[Yy]$ ]] && install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
+    else
+      info "Skipped auto-install. Install missing baseline pieces yourself before using Claude to build."
+    fi
+  else
+    cat <<EOF
     Some baseline plugins/theme aren't yet active on this site.
     The wizard can install them for you from wordpress.org:
 
@@ -389,26 +438,27 @@ else
     an existing site with content/theme you care about, choose 'No'
     and install manually via WP Admin → Plugins → Add New.
 EOF
-  ask "Auto-install Elementor + UAE? [Y/n]"
-  read -r DO_INSTALL
-  if [[ ! "$DO_INSTALL" =~ ^[Nn]$ ]]; then
-    [ "$HAS_ELEMENTOR" != "yes" ] && install_wp_plugin "elementor" "Elementor (free)"
-    [ "$HAS_UAE" != "yes" ] && install_wp_plugin "header-footer-elementor" "UAE / Header Footer Elementor"
+    ask "Auto-install Elementor + UAE? [Y/n]"
+    read -r DO_INSTALL
+    if [[ ! "$DO_INSTALL" =~ ^[Nn]$ ]]; then
+      [ "$HAS_ELEMENTOR" != "yes" ] && install_wp_plugin "elementor" "Elementor (free)"
+      [ "$HAS_UAE" != "yes" ] && install_wp_plugin "header-footer-elementor" "UAE / Header Footer Elementor"
 
-    if [ "$ACTIVE_THEME" != "hello-elementor" ]; then
-      ask "Also install Hello Elementor theme? (Switch theme manually after.) [Y/n]"
-      read -r DO_THEME
-      [[ ! "$DO_THEME" =~ ^[Nn]$ ]] && install_wp_theme "hello-elementor" "Hello Elementor"
-    fi
+      if [ "$ACTIVE_THEME" != "hello-elementor" ]; then
+        ask "Also install Hello Elementor theme? (Switch theme manually after.) [Y/n]"
+        read -r DO_THEME
+        [[ ! "$DO_THEME" =~ ^[Nn]$ ]] && install_wp_theme "hello-elementor" "Hello Elementor"
+      fi
 
-    ask "Also install Essential Addons + Fluent Forms (optional but useful)? [y/N]"
-    read -r DO_OPT
-    if [[ "$DO_OPT" =~ ^[Yy]$ ]]; then
-      install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
-      install_wp_plugin "fluentform" "Fluent Forms"
+      ask "Also install Essential Addons + Fluent Forms (optional but useful)? [y/N]"
+      read -r DO_OPT
+      if [[ "$DO_OPT" =~ ^[Yy]$ ]]; then
+        install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
+        install_wp_plugin "fluentform" "Fluent Forms"
+      fi
+    else
+      info "Skipped auto-install. You'll need to install the missing plugins yourself before using Claude to build."
     fi
-  else
-    info "Skipped auto-install. You'll need to install the missing plugins yourself before using Claude to build."
   fi
 fi
 
@@ -616,6 +666,12 @@ else
 fi
 
 # ---- final instructions ------------------------------------------------------
+if [ "$HAS_PRO" = "yes" ]; then
+  printf "\n  ${BOLD}${GREEN}Elementor Pro is active${RESET} — Claude will use native ${BOLD}Form${RESET}, ${BOLD}Theme Builder${RESET},\n  ${BOLD}Loop Grid${RESET}, ${BOLD}Popups${RESET}, ${BOLD}Dynamic Tags${RESET}, and ${BOLD}Sticky/Motion${RESET} (no workaround plugins).\n"
+else
+  printf "\n  ${DIM}Free Elementor — Claude will use the documented workarounds (Fluent Forms,\n  UAE/HFE headers). Activate Elementor Pro and re-run this wizard to unlock native\n  Form / Theme Builder / Loop Grid / Popups.${RESET}\n"
+fi
+
 cat <<EOF
 
   ${BOLD}${GREEN}✓ Setup complete${RESET}

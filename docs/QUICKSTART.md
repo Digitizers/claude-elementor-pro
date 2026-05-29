@@ -14,7 +14,7 @@ After ~3 minutes of setup, Claude Code can:
 - Edit existing pages, headers, footers
 - Read and modify any Elementor element by ID
 
-The MCP exposes ~75 Elementor tools. Claude loads schemas lazily as needed.
+The MCP exposes ~75 Elementor tools (~100+ when **Elementor Pro** is active — the kit auto-detects it and uses native Form / Theme Builder / Loop Grid / Popups / Dynamic Tags / Sticky-Motion). Claude loads schemas lazily as needed.
 
 ---
 
@@ -39,9 +39,10 @@ The setup wizard offers to install all the required plugins for you in step 6. I
 |---|---|
 | **Elementor (free)** *(required)* | Page builder |
 | **Hello Elementor** *(theme, required)* | Blank canvas |
-| **Ultimate Addons (UAE)** *(required)* | Site-wide headers/footers + free Nav Menu widget |
+| **Ultimate Addons (UAE)** *(required on free tier)* | Site-wide headers/footers + free Nav Menu widget *(not needed with Pro — Theme Builder covers it)* |
+| **Elementor Pro** *(optional)* | Native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion. Auto-detected; **you install it** (paid, not on wp.org) |
 | **Essential Addons (lite)** *(optional)* | Extra free widgets |
-| **Fluent Forms** *(optional)* | Real contact forms |
+| **Fluent Forms** *(optional)* | Real contact forms *(free-tier workaround; not needed with Pro)* |
 | **MCP Adapter + MCP Tools for Elementor** *(automatic)* | Wizard installs these from GitHub for you |
 
 For a one-page reference of every plugin/file the kit touches, see [`WHATS_INSTALLED.md`](WHATS_INSTALLED.md).
@@ -64,7 +65,7 @@ The wizard walks you through 8 steps:
 4. **Auth** — paste your username + Application Password
    > ⚠️ **Critical gotcha:** the password's *name/label* is just a label. The username is your actual WP login (e.g. `admin`, not "ClaudeMCP"). The wizard will list public users if auth fails so you can find the right slug.
 5. **Plugin baseline report** — shows which baseline plugins/theme are already active
-6. **Auto-install offer** — if anything's missing, the wizard offers to install Elementor, Hello Elementor theme, UAE, and optionally Essential Addons + Fluent Forms from wordpress.org. Say yes for fresh demo sites; say no if you're using an existing site you don't want auto-modified.
+6. **Auto-install offer** — if anything's missing, the wizard offers to install Elementor, Hello Elementor theme, and optionally Essential Addons from wordpress.org. On the **free tier** it also offers UAE + Fluent Forms; if **Elementor Pro is detected** it skips those (Pro covers headers/footers + forms natively). Say yes for fresh demo sites; say no if you're using an existing site you don't want auto-modified.
 7. **MCP plugins install** — handles the GitHub-only zips:
    - On Local: installs both via the bundled WP-CLI (auto-finds the per-site MySQL socket)
    - On live: prints the two `.zip` paths and waits while you upload them via WP Admin → Plugins → Add New → Upload Plugin
@@ -173,7 +174,7 @@ This setup looks simple in 7 steps because the script absorbed all the friction 
 
 - **Pixel-perfect HTML→Elementor compilation** — Elementor's flexbox container model is the ceiling; some layouts you'd write in 10 lines of CSS need 5 nested containers in Elementor
 - **A replacement for Elementor's visual editor** — for visual fine-tuning (drag handles, hover preview), the editor is still the best tool
-- **A way around Elementor Pro features** — Posts widget, Form widget, Theme Builder, Loop Grid, Sticky/Motion effects all remain Pro. The skill documents free workarounds.
+- **A way around Elementor Pro features on the free tier** — Posts widget, Form widget, Theme Builder, Loop Grid, Sticky/Motion remain Pro-only, and the skill documents free workarounds. **If you have Elementor Pro installed, the kit detects it and drives all of these natively** — no workarounds needed.
 
 ---
 
