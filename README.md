@@ -165,11 +165,15 @@ The skill auto-loads, and Claude already knows how to drive Elementor correctly.
 - Edit existing pages, find elements by ID, update settings, restructure layouts
 - Work on local AND live WordPress sites
 
+**With Elementor Pro (auto-detected):**
+- The kit detects Elementor Pro and switches to native Pro tools automatically — no config needed.
+- Native **Form** widget (real submitting forms, no Fluent Forms), **Theme Builder** headers/footers/single/archive (no UAE/HFE), **Loop Grid** for dynamic listings, **Popups**, **Dynamic Tags**, and **Sticky/Motion** effects.
+- The kit can't *install* Pro for you (it's paid and not on wordpress.org) — install/activate it yourself, then run the setup wizard.
+
 **Can't do:**
 - Install plugins on live hosts (you upload the two MCP plugin zips manually — the script tells you when)
-- Drive **Elementor Pro** features (Theme Builder, Loop Grid, Form widget, Sticky/Motion, Popups). It's free Elementor only.
-- Pixel-perfect translation from arbitrary HTML — Elementor's flexbox container model is the ceiling
-- Build Custom headers/footers without **[Header Footer Elementor](https://wordpress.org/plugins/header-footer-elementor/)** plugin (free)
+- Pixel-perfect translation from arbitrary HTML — Elementor's flexbox container model is the ceiling (Pro adds CSS Grid containers)
+- On **free Elementor**, drive Pro-only features — it falls back to workarounds: Fluent Forms for forms, and **[Header Footer Elementor](https://wordpress.org/plugins/header-footer-elementor/)** (free) / UAE for custom headers/footers
 
 ---
 
