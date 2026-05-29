@@ -1,4 +1,4 @@
-# Claude + Elementor Kit
+# Claude + Elementor Pro
 
 Build WordPress sites with AI — design with Claude Code, then have Claude build it directly inside your Elementor site. No more rebuilding mockups by hand.
 
