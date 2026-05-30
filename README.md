@@ -9,7 +9,7 @@ Build WordPress sites with AI — design with Claude Code, then have Claude buil
 ## What's inside
 
 ```
-claude-elementor-kit/
+claude-elementor-pro/
 ├── INSTALL.sh          ← Installer for Mac & Linux
 ├── INSTALL.bat         ← Installer for Windows (double-click)
 ├── INSTALL.ps1         ← Windows installer (PowerShell)
@@ -17,8 +17,9 @@ claude-elementor-kit/
 │   ├── SKILL.md                  ← The cheat sheet Claude reads
 │   └── setup-elementor-mcp.sh    ← The robot that connects Claude to WordPress
 ├── docs/
-│   ├── QUICKSTART.md   ← Short "how to use this" guide
-│   └── LESSONS.md      ← Deep-dive on why it works the way it does
+│   ├── QUICKSTART.md       ← Short "how to use this" guide
+│   ├── WHATS_INSTALLED.md  ← One-page map of every file/plugin the kit touches
+│   └── LESSONS.md          ← Deep-dive on why it works the way it does
 ├── LICENSE             ← MIT — free for any use
 └── README.md           ← You are here
 ```
@@ -97,8 +98,8 @@ The two files in this repo's `files/` folder get copied to:
 
 ```bash
 # 1. Clone or download this repo
-git clone https://github.com/emersimeon/claude-elementor-kit.git
-cd claude-elementor-kit
+git clone https://github.com/Digitizers/claude-elementor-pro.git
+cd claude-elementor-pro
 
 # 2. Run the installer
 bash INSTALL.sh
@@ -195,7 +196,11 @@ For more details, see [`docs/LESSONS.md`](docs/LESSONS.md).
 
 ## Credits
 
-This kit wraps two existing open-source projects:
+This is the **Elementor Pro edition** — a fork of and built on top of the original kit:
+
+- **[claude-elementor-kit](https://github.com/emersimeon/claude-elementor-kit)** by [Emery Simeon (@emersimeon)](https://github.com/emersimeon) — the original kit that this repo extends with native Elementor Pro support and auto-detection (MIT)
+
+It also wraps two existing open-source WordPress projects:
 
 - **[elementor-mcp](https://github.com/msrbuilds/elementor-mcp)** by [@msrbuilds](https://github.com/msrbuilds) — the actual MCP server that exposes Elementor to AI agents (GPL-3.0)
 - **[WordPress MCP Adapter](https://github.com/WordPress/mcp-adapter)** — the WP-side plumbing for any MCP server (GPL-2.0)
