@@ -124,7 +124,7 @@ BANNER
 
 # ---- 1. Local vs live --------------------------------------------------------
 step "1/8  Site type"
-echo "    [1] Local-by-Flywheel  (sites under ~/Local Sites/)"
+echo "    [1] Local-by-Flywheel  (any Local site, wherever it's stored)"
 echo "    [2] Live host          (any WordPress site reachable over HTTP/HTTPS)"
 ask "Pick (1 or 2):"
 read -r SITE_TYPE
@@ -138,17 +138,55 @@ esac
 step "2/8  Site URL"
 
 if [ "$MODE" = "local" ]; then
-  if [ -d "$HOME/Local Sites" ]; then
+  # Local records each site's REAL path + domain in sites.json. Read it so we
+  # support sites created OUTSIDE the default ~/Local Sites/ folder (Local lets
+  # you pick any location — e.g. ~/Documents/GitHub/MySite). Falls back to the
+  # legacy ~/Local Sites/<name> convention when sites.json has no match.
+  LOCAL_SITES_JSON="$HOME/Library/Application Support/Local/sites.json"
+
+  # Emits one "name<TAB>path<TAB>domain" line per configured Local site.
+  list_local_sites() {
+    [ -f "$LOCAL_SITES_JSON" ] || return 1
+    python3 - "$LOCAL_SITES_JSON" <<'PY' 2>/dev/null
+import json, sys
+try:
+    d = json.load(open(sys.argv[1]))
+except Exception:
+    sys.exit(1)
+sites = d.values() if isinstance(d, dict) else d
+rows = [v for v in sites if isinstance(v, dict) and v.get("name")]
+if not rows:
+    sys.exit(1)
+for v in rows:
+    print("\t".join([v.get("name", ""), v.get("path", ""), v.get("domain", "")]))
+PY
+  }
+
+  if list_local_sites >/dev/null 2>&1; then
+    info "Sites detected in Local:"
+    while IFS=$'\t' read -r _n _p _dom; do
+      printf "      ${CYAN}•${RESET} %s  ${DIM}(%s)${RESET}\n" "$_n" "$_dom"
+    done < <(list_local_sites)
+  elif [ -d "$HOME/Local Sites" ]; then
     info "Sites detected in ~/Local Sites/:"
     for d in "$HOME/Local Sites"/*/; do
       [ -d "$d" ] && printf "      ${CYAN}•${RESET} %s\n" "$(basename "$d")"
     done
   fi
-  ask "Local site name (folder under ~/Local Sites/):"
+
+  ask "Local site name:"
   read -r SITE_NAME
-  SITE_PATH="$HOME/Local Sites/$SITE_NAME/app/public"
-  [ -f "$SITE_PATH/wp-config.php" ] || abort "No wp-config.php at $SITE_PATH"
-  SITE_URL="http://${SITE_NAME}.local"
+
+  # Resolve real path + URL from sites.json; fall back to the legacy convention.
+  RESOLVED=$(list_local_sites 2>/dev/null | awk -F'\t' -v n="$SITE_NAME" '$1==n{print; exit}')
+  if [ -n "$RESOLVED" ]; then
+    SITE_PATH="$(printf "%s" "$RESOLVED" | cut -f2)/app/public"
+    SITE_URL="http://$(printf "%s" "$RESOLVED" | cut -f3)"
+  else
+    SITE_PATH="$HOME/Local Sites/$SITE_NAME/app/public"
+    SITE_URL="http://${SITE_NAME}.local"
+  fi
+  [ -f "$SITE_PATH/wp-config.php" ] || abort "No wp-config.php at $SITE_PATH (is the site name correct? check Local)"
   ok "Site path:  $SITE_PATH"
   ok "Site URL:   $SITE_URL"
 else
