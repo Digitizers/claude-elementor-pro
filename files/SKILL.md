@@ -617,6 +617,25 @@ Use `ToolSearch` query format `select:tool1,tool2,tool3` to load multiple in one
 
 **Pro features are NOT a limitation when Pro is active** — Form widget, Theme Builder, Loop Grid, Popups, Dynamic Tags, and Sticky/Motion are all driven natively (see the Pro sections above). They're only unavailable on the Free tier, where the documented workarounds apply.
 
+## Companion tooling — `wordpress-api-pro` (content/SEO/commerce ops)
+
+The Elementor MCP is for **building and editing page structure** (containers, widgets, Pro widgets). It does **not** cover bulk content ops, media-library uploads, SEO metadata, custom fields, or WooCommerce. For those, a sibling toolkit — **[`wordpress-api-pro`](https://github.com/Digitizers/wordpress-api-pro)** (Python REST scripts, App-Password auth) — fills the gaps. Same auth model (WordPress Application Password), so it works against the very same site.
+
+**Reach for `wordpress-api-pro` instead of the MCP when the task is:**
+
+| Task | Script |
+|---|---|
+| Upload an actual image/file to the media library (then feed its URL/ID to an Elementor Image widget) | `upload_media.py` |
+| Read/write SEO meta (Rank Math / Yoast) | `seo_meta.py` |
+| Read/write ACF or JetEngine custom fields | `acf_fields.py` / `jetengine_fields.py` |
+| List/create/update WooCommerce products | `woo_products.py` |
+| Bulk content changes across many posts or **multiple sites** (dry-run first) | `batch_update.py`, `wp.sh` |
+| Plain post/page CRUD outside Elementor | `create_post.py` / `update_post.py` / `get_post.py` / `list_posts.py` |
+
+**Division of labor:** build the page with the MCP → upload media + set SEO meta + wire custom fields/products with `wordpress-api-pro`. Both touch `_elementor_data`, but prefer the **MCP** for structured Elementor edits and reserve `wordpress-api-pro`'s `elementor_content.py` for scripted/batch field tweaks.
+
+> Setup: the scripts need Python 3.8+ and `requests` (`pip install requests`, or a venv). Auth via `WP_URL` / `WP_USERNAME` / `WP_APP_PASSWORD` env vars, or `config/sites.json` for multi-site. See that repo's `SKILL.md`.
+
 ## Quick reference — the build flow that works *(mode 1 only)*
 
 > Use this flow only after the user has explicitly chosen "Build" or asked to build a new site/page. Do **not** run this flow as a default response to `/elementor-mcp` — see the First Action Protocol at the top.
