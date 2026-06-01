@@ -261,19 +261,27 @@ present). On a classic-engine site, ignore it and use the classic widget tools
 everywhere. **Never mix:** classic `add-heading`/`add-container` writes do not
 persist on an atomic page, and atomic writes don't belong on a classic page.
 
-> 🛑 **VERIFY-OR-BAIL — current V4 reality (tested June 2026).** Even when the
-> atomic tools are present and a call like `add-flexbox` returns a generated
-> `element_id`, **the write may not actually persist.** On Elementor 3.31.5 with
-> the `e_opt_in_v4_page` experiment, `$document->save()` returns success but
-> silently sanitizes the atomic element out, leaving `_elementor_data` empty.
+> ✅ **What makes V4 writes persist (tested June 2026).** Two separate Elementor
+> experiments matter, and only one of them makes atomic writes stick:
+> - `e_opt_in_v4_page` — opts the *page editor* into V4. **Not sufficient on its
+>   own**: with only this on, `add-flexbox` returns an `element_id` but
+>   `$document->save()` silently drops the element (`_elementor_data` stays empty),
+>   because the atomic element *types* aren't registered server-side.
+> - **`e_atomic_elements`** — registers the atomic element types (`e-flexbox`,
+>   `e-div-block`). **This is the one that makes atomic writes persist.** Enable it
+>   under Elementor → Settings → Features.
 >
-> So on a V4 site: **after the first atomic write, immediately read it back**
-> (`export-page` or `get-page-structure`). If the element isn't there, atomic
-> writes don't persist on this build — **stop and tell the user**, and recommend
-> the **classic engine** for production (Elementor → Settings → Features → turn
-> off the V4 page experiment), where the full classic + Pro toolset works. Do not
-> keep emitting atomic calls that silently no-op. (Tool *registration* is fixed
-> upstream; reliable atomic *writes* depend on a newer Elementor/MCP.)
+> A **fixed elementor-mcp build** (Digitizers fork / [upstream PR #47](https://github.com/msrbuilds/elementor-mcp/pull/47))
+> exposes the atomic tools **only when element types are registered** — so if you
+> *see* `add-flexbox` etc., writes will persist. On an unpatched build the atomic
+> tools may be present on a half-configured site and silently no-op.
+>
+> **Safety net either way:** after the first atomic write, read it back
+> (`export-page` / `get-page-structure`). If the element isn't there, the
+> Atomic Elements experiment isn't active (or the MCP build is unpatched) —
+> **stop, tell the user**, and either enable `e_atomic_elements` or use the
+> **classic engine** (turn the V4 page experiment off) where the full classic +
+> Pro toolset works. Never keep emitting atomic calls that silently no-op.
 
 ### Atomic tool family — use instead of the classic ones
 
