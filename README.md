@@ -165,7 +165,7 @@ bash new-client.sh --local "ClientName" --user wpuser --app-pass "..." --fork
 
 `--fork` installs elementor-mcp from the Digitizers fork @ main (atomic-detection fix). For any other source, `--mcp-repo <owner/repo>` + `--mcp-ref <branch|tag>` install from that repo's source zipball instead of the latest release.
 
-> ⚠️ **The fork fixes atomic-tool *registration*, not write *persistence*.** Live testing (Elementor 3.31.5 + `e_opt_in_v4_page`) confirmed the atomic tools now register and run, **but content writes still don't persist** — Elementor's `$document->save()` returns success while sanitizing the atomic element out. So V4 building isn't reliable end-to-end yet. For production, prefer the **classic engine** (turn off the V4 page experiment under Elementor → Settings → Features), where the full classic + Pro toolset works.
+> ℹ️ **V4 needs the *Atomic Elements* experiment on.** Live testing (Elementor 3.31.5 + Pro) confirmed end-to-end V4 building works **when `e_atomic_elements` is enabled** (Elementor → Settings → Features) — that's what registers the `e-flexbox` / `e-div-block` element types so atomic writes persist. The V4 *page* opt-in (`e_opt_in_v4_page`) alone is **not** enough — writes would silently no-op. The fork build keys atomic-tool registration on element-type registration, so the atomic tools appear only when writes will actually persist (the skill also reads back the first write as a safety net). If a site is on the page opt-in only, either enable Atomic Elements or use the classic engine.
 
 ### Every session
 
