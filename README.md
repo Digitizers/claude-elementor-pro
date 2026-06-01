@@ -157,6 +157,14 @@ bash new-client.sh --live "https://client.com" --user wpuser --app-pass "..." --
 
 Useful flags: `--project-dir <path>` (where `.mcp.json` goes), `--with-api-pro [path]` (also install the [wordpress-api-pro](https://github.com/Digitizers/wordpress-api-pro) companion skill), `--name <id>` (MCP server name), `--dry-run` (report only). Idempotent — skips the plugin install if the MCP route is already registered.
 
+**Elementor 4 (atomic / V4) sites:** the released elementor-mcp gates its atomic tools on `ELEMENTOR_VERSION >= 4.0.0`, but Elementor runs atomic as an experiment while the constant still reads `3.x` — so on a V4 site the atomic tools never register and classic writes silently don't persist. Until the [upstream fix](https://github.com/msrbuilds/elementor-mcp/pull/47) lands, install the patched build with `--fork`:
+
+```bash
+bash new-client.sh --local "ClientName" --user wpuser --app-pass "..." --fork
+```
+
+`--fork` installs elementor-mcp from the Digitizers fork @ main (atomic-detection fix). For any other source, `--mcp-repo <owner/repo>` + `--mcp-ref <branch|tag>` install from that repo's source zipball instead of the latest release.
+
 ### Every session
 
 1. Restart Claude Code in the project folder so it picks up `.mcp.json`

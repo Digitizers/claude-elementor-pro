@@ -23,6 +23,13 @@
 # Options:
 #   --project-dir <path>   Where to write .mcp.json (default: Local site root, else cwd)
 #   --name <id>            MCP server name in .mcp.json (default: elementor)
+#   --mcp-repo <owner/repo> Install elementor-mcp from this repo (default
+#                          msrbuilds/elementor-mcp, latest release)
+#   --mcp-ref <branch|tag> Install elementor-mcp from this ref's source zipball
+#                          instead of the latest release
+#   --fork                 Shorthand for the Digitizers fork @ main (carries the
+#                          Elementor 4 / atomic-engine detection fix, until it
+#                          lands upstream)
 #   --with-api-pro [path]  Also install the wordpress-api-pro skill. Optional path
 #                          to the repo (default: sibling ../wordpress-api-pro)
 #   --dry-run              Report only — no installs, no file writes
@@ -46,6 +53,10 @@ need curl; need python3
 # ---- args -------------------------------------------------------------------
 MODE=""; SITE_REF=""; WP_USER=""; WP_APP_PWD=""
 PROJECT_DIR=""; MCP_NAME="elementor"; WITH_API_PRO=""; API_PRO_PATH=""; DRY_RUN=""
+# elementor-mcp source: default = msrbuilds latest release. Override to install
+# from a specific repo/ref (e.g. the Digitizers fork with the Elementor-4 atomic
+# detection fix, before it lands upstream).
+MCP_REPO="msrbuilds/elementor-mcp"; MCP_REF=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --local)       MODE="local"; SITE_REF="${2:-}"; shift 2 ;;
@@ -54,11 +65,14 @@ while [ $# -gt 0 ]; do
     --app-pass)    WP_APP_PWD="${2:-}"; shift 2 ;;
     --project-dir) PROJECT_DIR="${2:-}"; shift 2 ;;
     --name)        MCP_NAME="${2:-}"; shift 2 ;;
+    --mcp-repo)    MCP_REPO="${2:-}"; shift 2 ;;
+    --mcp-ref)     MCP_REF="${2:-}"; shift 2 ;;
+    --fork)        MCP_REPO="Digitizers/elementor-mcp"; MCP_REF="main"; shift 1 ;;
     --with-api-pro)
       WITH_API_PRO="yes"
       case "${2:-}" in ""|--*) shift 1 ;; *) API_PRO_PATH="$2"; shift 2 ;; esac ;;
     --dry-run)     DRY_RUN="yes"; shift 1 ;;
-    -h|--help)     sed -n '2,40p' "$0"; exit 0 ;;
+    -h|--help)     sed -n '2,46p' "$0"; exit 0 ;;
     *) abort "Unknown arg: $1 (try --help)" ;;
   esac
 done
@@ -137,17 +151,27 @@ fi
 has_route(){ curl -s -u "$WP_USER:$WP_APP_PWD" --max-time 10 "$SITE_URL/wp-json/" 2>/dev/null | grep -q "elementor-mcp-server"; }
 
 step "4/7  MCP plugins"
+[ -n "$MCP_REF" ] && info "elementor-mcp source: $MCP_REPO @ $MCP_REF" || info "elementor-mcp source: $MCP_REPO (latest release)"
 if has_route; then
   ok "MCP route already registered — skipping install."
+  info "(to reinstall from a different source, deactivate the elementor-mcp plugin first)"
 elif [ -n "$DRY_RUN" ]; then
   info "[dry-run] would download + install mcp-adapter + elementor-mcp"
 else
   need unzip; need zip
   WORK=$(mktemp -d); trap 'rm -rf "$WORK"' EXIT
+  # Latest-release asset (or its source zipball) for a repo.
   dl(){ curl -s "https://api.github.com/repos/$1/releases/latest" | python3 -c 'import sys,json;d=json.load(sys.stdin);a=[x for x in d.get("assets",[]) if x["name"].endswith(".zip")];print(a[0]["browser_download_url"] if a else d.get("zipball_url",""))'; }
+  # Source zipball for a specific repo @ ref (branch or tag).
+  dl_ref(){ echo "https://api.github.com/repos/$1/zipball/$2"; }
   info "Downloading mcp-adapter + elementor-mcp..."
   curl -sL -o "$WORK/mcp-adapter.zip" "$(dl WordPress/mcp-adapter)" || abort "adapter download failed"
-  curl -sL -o "$WORK/em-src.zip" "$(dl msrbuilds/elementor-mcp)" || abort "elementor-mcp download failed"
+  if [ -n "$MCP_REF" ]; then
+    curl -sL -o "$WORK/em-src.zip" "$(dl_ref "$MCP_REPO" "$MCP_REF")" || abort "elementor-mcp download failed ($MCP_REPO@$MCP_REF)"
+  else
+    curl -sL -o "$WORK/em-src.zip" "$(dl "$MCP_REPO")" || abort "elementor-mcp download failed ($MCP_REPO)"
+  fi
+  [ -s "$WORK/em-src.zip" ] && unzip -tq "$WORK/em-src.zip" >/dev/null 2>&1 || abort "elementor-mcp zip empty/invalid — check --mcp-repo/--mcp-ref ($MCP_REPO${MCP_REF:+@$MCP_REF})"
   ( cd "$WORK" && unzip -q em-src.zip )
   EM_DIR=$(find "$WORK" -maxdepth 1 -type d -name "*elementor-mcp*" | head -1)
   if [ -n "$EM_DIR" ] && [ "$(basename "$EM_DIR")" != "elementor-mcp" ]; then mv "$EM_DIR" "$WORK/elementor-mcp"; fi
