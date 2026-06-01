@@ -165,6 +165,8 @@ bash new-client.sh --local "ClientName" --user wpuser --app-pass "..." --fork
 
 `--fork` installs elementor-mcp from the Digitizers fork @ main (atomic-detection fix). For any other source, `--mcp-repo <owner/repo>` + `--mcp-ref <branch|tag>` install from that repo's source zipball instead of the latest release.
 
+> ⚠️ **The fork fixes atomic-tool *registration*, not write *persistence*.** Live testing (Elementor 3.31.5 + `e_opt_in_v4_page`) confirmed the atomic tools now register and run, **but content writes still don't persist** — Elementor's `$document->save()` returns success while sanitizing the atomic element out. So V4 building isn't reliable end-to-end yet. For production, prefer the **classic engine** (turn off the V4 page experiment under Elementor → Settings → Features), where the full classic + Pro toolset works.
+
 ### Every session
 
 1. Restart Claude Code in the project folder so it picks up `.mcp.json`
