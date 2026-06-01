@@ -261,6 +261,20 @@ present). On a classic-engine site, ignore it and use the classic widget tools
 everywhere. **Never mix:** classic `add-heading`/`add-container` writes do not
 persist on an atomic page, and atomic writes don't belong on a classic page.
 
+> 🛑 **VERIFY-OR-BAIL — current V4 reality (tested June 2026).** Even when the
+> atomic tools are present and a call like `add-flexbox` returns a generated
+> `element_id`, **the write may not actually persist.** On Elementor 3.31.5 with
+> the `e_opt_in_v4_page` experiment, `$document->save()` returns success but
+> silently sanitizes the atomic element out, leaving `_elementor_data` empty.
+>
+> So on a V4 site: **after the first atomic write, immediately read it back**
+> (`export-page` or `get-page-structure`). If the element isn't there, atomic
+> writes don't persist on this build — **stop and tell the user**, and recommend
+> the **classic engine** for production (Elementor → Settings → Features → turn
+> off the V4 page experiment), where the full classic + Pro toolset works. Do not
+> keep emitting atomic calls that silently no-op. (Tool *registration* is fixed
+> upstream; reliable atomic *writes* depend on a newer Elementor/MCP.)
+
 ### Atomic tool family — use instead of the classic ones
 
 | Need | Classic (don't use on V4) | **Atomic (V4)** |
