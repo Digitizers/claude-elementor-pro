@@ -1,6 +1,6 @@
 ---
 name: elementor-mcp
-description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro and uses native Pro widgets (Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion) when present, falling back to free-tier workarounds otherwise. Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/elementor-mcp`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
+description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro (native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion vs free-tier workarounds) AND the page engine (classic vs Elementor 4 atomic/V4 — atomic uses add-flexbox/add-atomic-* tools since classic writes don't persist on a V4 page). Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/elementor-mcp`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
 ---
 
 # Elementor MCP Skill
@@ -93,6 +93,47 @@ workarounds. **Do NOT call `detect-elementor-version`** — it errors in v1.5.0
 > user up front, then follow the matching branch in every section below. Each
 > "Forms", "Header/Footer", and motion section is written as **If Pro → … /
 > If Free → …**. Don't mix paths.
+
+### 🧬 Also detect the ENGINE — classic vs atomic (Elementor 4 / V4)
+
+There's a **second** axis that changes everything: the page engine. Elementor 4
+introduced the **atomic / V4** engine (`e-flexbox`, `e-div-block`, atomic
+widgets, a typed-prop `$$type` data model). Classic widget writes **do not
+persist on an atomic page** — they silently appear to do nothing. So before
+building, decide classic vs atomic.
+
+**How to detect — by atomic tool availability (preferred):**
+
+The atomic tools register only when the site is on the atomic engine. Check your
+available tools:
+
+- `add-flexbox`, `add-div-block`, `add-atomic-heading` / `add-atomic-button` / …,
+  `add-atomic-widget` / `update-atomic-widget` present ⇒ **atomic (V4) engine**
+- Only classic `add-container` / `add-heading` / … present ⇒ **classic engine**
+
+You may also call `detect-elementor-version` (reliable on current releases — it
+returns whether atomic is supported). The old v1.5.0 schema bug is fixed; still,
+tool-presence is the most direct signal.
+
+> ⚠️ **Antigravity / tight tool caps.** Antigravity caps MCP tools at ~100. The
+> full Pro+atomic set is ~113, so atomic tools can get truncated and never reach
+> the client — making a V4 site look like "writes don't persist". Fix: enable the
+> MCP plugin's **Low-tools mode** (WP Admin → MCP Tools screen). Its curated
+> essentials set **includes the 5 atomic essentials** (`detect-elementor-version`,
+> `add-atomic-widget`, `update-atomic-widget`, `add-flexbox`, `add-div-block`) and
+> stays under the cap.
+
+> 🐞 **Known root cause (older MCP builds).** Elementor often runs atomic as an
+> opt-in *experiment* while `ELEMENTOR_VERSION` still reads `3.x`. MCP builds that
+> gate atomic on `version_compare(ELEMENTOR_VERSION,'4.0.0','>=')` therefore never
+> register the atomic tools on those sites. Fixed upstream by detecting via the
+> experiment/module. If atomic tools are missing on a clearly-V4 site, update the
+> elementor-mcp plugin (or confirm the V4 experiment is on under Elementor →
+> Settings → Features).
+
+Record **both** axes: e.g. "Pro + atomic", "Pro + classic", "Free + classic".
+The Pro/Free axis picks Form vs Fluent Forms etc.; the engine axis picks classic
+vs atomic widget tools (next section).
 
 The container schema is large (~50KB). Read it once, then write down the keys you'll use in your reply text so you don't need to re-fetch it. Critical keys:
 
@@ -212,6 +253,69 @@ When you need to style a native widget from outside (e.g., overriding the Tabs w
 The `f8d1545` is the `element_id` returned when you created the tabs widget. Always grab and remember these IDs — they're the only stable selector across page reloads.
 
 > ⚠️ **An HTML widget used for cross-widget styling MUST contain only `<style>`.** If you find yourself adding HTML markup *(divs, anchors, spans with text content)* alongside the style block, you're falling back into the anti-pattern at the top of this section. Stop. That markup belongs in native widgets.
+
+## Building on Elementor 4 (atomic / V4)
+
+Apply this section **only when you detected the atomic engine** (atomic tools
+present). On a classic-engine site, ignore it and use the classic widget tools
+everywhere. **Never mix:** classic `add-heading`/`add-container` writes do not
+persist on an atomic page, and atomic writes don't belong on a classic page.
+
+### Atomic tool family — use instead of the classic ones
+
+| Need | Classic (don't use on V4) | **Atomic (V4)** |
+|---|---|---|
+| Flex container | `add-container` | `add-flexbox` *(direction/justify/align/gap/wrap/padding/background_color)* |
+| Block container | `add-container` | `add-div-block` |
+| Heading | `add-heading` | `add-atomic-heading` |
+| Body text | `add-text-editor` | `add-atomic-paragraph` |
+| Button | `add-button` | `add-atomic-button` |
+| Image | `add-image` | `add-atomic-image` |
+| SVG / video / divider | `add-icon` / `add-html` | `add-atomic-svg` / `add-atomic-youtube` / `add-atomic-video` / `add-atomic-divider` |
+| Anything else | `add-widget` | `add-atomic-widget` *(any atomic type by `$$type`)* / `update-atomic-widget` |
+
+### The atomic data model (what's different)
+
+- **Typed props (`$$type`).** Atomic settings are typed values, not flat strings.
+  The MCP handles this for you — **pass simple flat values** (e.g. `title: "Hello"`,
+  a hex `color`, a `{size,unit}` dimension) and it wraps them into the `$$type`
+  format Elementor's atomic engine stores.
+- **Styles live in a separate `styles` map**, not inline on the element. Layout
+  props on `add-flexbox` (direction/justify/align/gap) are written as local styles
+  automatically — you don't hand-build the styles map.
+- **Confirm keys per widget** with `get-widget-schema` before building anything
+  non-trivial; the atomic prop names differ from the classic control names.
+
+### Build order on V4
+
+Same top-down discipline as classic, with atomic tools:
+
+1. `update-global-colors` + `update-global-typography` (global kit still applies).
+2. `create-page` → build the outer layout with `add-flexbox` (section) → inner
+   `add-flexbox`/`add-div-block` (boxed content) → atomic widgets inside.
+3. Card grids: build one card from atomic widgets, then `duplicate-element` +
+   `update-atomic-widget` per copy (same pattern, atomic tools).
+4. Verify after each section with `get-page-structure` + curl the front page.
+
+### Pro widgets on V4 — the real limitation
+
+Elementor has **not** shipped atomic equivalents for the Pro widgets yet (Form,
+Loop Grid, Nav Menu, Theme Builder parts). On an atomic page they're classic
+islands that **may not render**. So when the design needs them:
+
+- **Contact form:** prefer a **Fluent Forms shortcode** dropped via an atomic
+  widget (`add-atomic-widget` of a shortcode/HTML type), not the Pro Form widget.
+  Flag to the user that the native Pro Form isn't V4-ready.
+- **Dynamic listings:** if Loop Grid won't render, fall back to atomic cards built
+  from a query you fetch out-of-band (or `wordpress-api-pro`), or accept a classic
+  island only if it renders on this build.
+- **Header/footer:** Theme Builder still works at the template level; build the
+  template body with atomic tools where supported.
+
+> If the user needs heavy Pro-widget functionality **and** doesn't specifically
+> need V4, the lowest-friction path is a classic-engine site (turn off the V4
+> page experiment under Elementor → Settings → Features). Surface this tradeoff
+> rather than silently shipping a page where the form doesn't render.
 
 ## When the user asks to BUILD — building order
 
@@ -588,7 +692,8 @@ Two options:
 - **Neither MCP plugin is on wordpress.org.** Cannot install via REST API by slug — must download zips from GitHub Releases.
 - **The elementor-mcp release zipball has an ugly auto-generated folder name** (`msrbuilds-elementor-mcp-<sha>/`). WordPress uses the folder name as the plugin slug. Repack with a clean `elementor-mcp/` folder before installing.
 - **Claude Code only loads `.mcp.json` at startup** — after writing one, the user must quit and reopen.
-- **The `detect-elementor-version` tool errors with a schema validation bug** in v1.5.0 (`elementor_pro_version` is null but schema says string). Don't rely on it; use `list-pages` for the auth-works check instead.
+- **The `detect-elementor-version` tool errored with a schema validation bug** in v1.5.0 (`elementor_pro_version` null vs. schema `string`). Fixed in current builds and useful for the classic-vs-atomic check — but for the plain auth-works smoke test, `list-pages` is still the simplest.
+- **Atomic (V4) tools missing on a V4 site?** Older MCP builds gate atomic-tool registration on `ELEMENTOR_VERSION >= 4.0.0`, but Elementor runs atomic as an experiment while the constant still reads `3.x` — so the tools never register and classic writes silently don't persist. Update the elementor-mcp plugin (the detection now keys off the atomic experiment/module), and on tight tool caps (Antigravity) enable **Low-tools mode** so the 5 atomic essentials stay exposed. See the engine-detection section up top.
 
 ## Live-host vs Local differences
 
