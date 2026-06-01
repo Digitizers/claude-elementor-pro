@@ -142,6 +142,21 @@ The wizard walks you through 8 steps:
 
 If you say "yes" at step 6, the wizard installs the required plugins from wordpress.org for you. If you say "no" — say if you're using an existing site you don't want auto-modified — install them manually via WP Admin → Plugins → Add New.
 
+### Onboard a client fast (non-interactive)
+
+For spinning up many client sites, `new-client.sh` is a flag-driven, headless version of the wizard — resolves the site, verifies auth, detects Pro, installs the MCP plugins, and writes `.mcp.json` in one command:
+
+```bash
+# Local-by-Flywheel site (resolved from Local's sites.json — works even when the
+# site lives outside ~/Local Sites/):
+bash new-client.sh --local "ClientName" --user wpuser --app-pass "xxxx xxxx xxxx xxxx xxxx xxxx" --with-api-pro
+
+# Live host (prints the two MCP zips to upload, then re-run):
+bash new-client.sh --live "https://client.com" --user wpuser --app-pass "..." --project-dir ~/projects/client
+```
+
+Useful flags: `--project-dir <path>` (where `.mcp.json` goes), `--with-api-pro [path]` (also install the [wordpress-api-pro](https://github.com/Digitizers/wordpress-api-pro) companion skill), `--name <id>` (MCP server name), `--dry-run` (report only). Idempotent — skips the plugin install if the MCP route is already registered.
+
 ### Every session
 
 1. Restart Claude Code in the project folder so it picks up `.mcp.json`
