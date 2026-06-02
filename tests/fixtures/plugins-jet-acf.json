@@ -1,0 +1,6 @@
+[
+  { "plugin": "elementor/elementor.php", "status": "active" },
+  { "plugin": "elementor-pro/elementor-pro.php", "status": "active" },
+  { "plugin": "jet-engine/jet-engine.php", "status": "active" },
+  { "plugin": "advanced-custom-fields-pro/acf.php", "status": "active" }
+]
