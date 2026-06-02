@@ -342,6 +342,21 @@ After intake, **bind widget colors to these globals** (or use the recorded token
 value when setting directly). Introducing an ad-hoc hex/font mid-build breaks brand
 consistency — don't.
 
+## Recipe library
+
+Reusable, brand-token-driven build sequences for common sections. **Before building a
+section, consult the matching recipe** and bind everything to the brand tokens (see
+"Brand kit" above). Classic-first; apply the recipe's Pro/V4 variant note when those
+engines are active. Full trees + token bindings: [`references/recipes.md`](references/recipes.md).
+
+Available recipes: **Hero**, **Services grid**, **Split (image + text)**, **Stats
+band**, **Testimonials**, **CTA band**, **Contact**, **FAQ**, **Pricing**, **Logos
+strip**. (The library grows — add a recipe when a new section type recurs.)
+
+Recipes reuse the rest of this skill's rules (native widgets not HTML dumps,
+`duplicate-element`/Loop Grid for grids, flat-param convention) — they don't restate
+them.
+
 ## When the user asks to BUILD — building order
 
 > Use this section only when the user has explicitly asked you to build something. Do not run this flow on a bare `/elementor-mcp` invocation.
@@ -351,7 +366,7 @@ For a new page, build top-down section by section, in small commits, verifying a
 1. **Brand kit** — if the brand tokens aren't set yet, run the brand-kit intake flow (see "Brand kit — intake & tokens" above) to establish the named global colors/typography. If already set, confirm via `get-global-settings`.
 2. `create-page({title, status: "publish", template: "elementor_canvas"})` — Canvas template removes theme header/footer chrome so your design is the only thing on the page
 3. (Via WP-CLI) Set as static front page: `wp option update show_on_front page; wp option update page_on_front <id>`
-4. Build sections — outer container → inner content container (boxed, max-width 1360px-ish) → content
+4. Build sections — **use the matching recipe from the Recipe library** (outer container → inner boxed container, max-width ~1360px → content), bound to brand tokens
 5. After each section: `get-page-structure(post_id)` to verify nesting, or just curl the front page
 6. **Pause for human review** before building header/footer (which use Header Footer Elementor templates, a different flow)
 
