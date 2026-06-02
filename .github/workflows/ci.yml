@@ -40,6 +40,20 @@ jobs:
           print("SKILL.md frontmatter OK")
           PY
 
+      - name: Brand-kit reference check
+        run: |
+          python3 - <<'PY'
+          import re, json, pathlib
+          md = pathlib.Path("files/references/brand-kit.md").read_text()
+          blocks = re.findall(r"```json\n(.*?)\n```", md, re.S)
+          assert blocks, "brand-kit.md has no json examples"
+          for b in blocks:
+              json.loads(b)
+          skill = pathlib.Path("files/SKILL.md").read_text()
+          assert "references/brand-kit.md" in skill, "SKILL.md must reference brand-kit.md"
+          print(f"brand-kit ok ({len(blocks)} json blocks)")
+          PY
+
       - name: dry-run smoke (no network)
         run: |
           set +e

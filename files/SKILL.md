@@ -317,13 +317,38 @@ islands that **may not render**. So when the design needs them:
 > page experiment under Elementor → Settings → Features). Surface this tradeoff
 > rather than silently shipping a page where the form doesn't render.
 
+## Brand kit — intake & tokens
+
+Triggers when the user is setting up a new client / brand, or says "set up the
+brand". Establishes the design tokens every later build references **by name, never
+raw hex/font**. Full schema + tool shapes: [`references/brand-kit.md`](references/brand-kit.md).
+
+The 8 color tokens (`brand, accent, heading, text, bg, surface, muted, border`) and
+2 font tokens (`heading-font, body-font`) map to **named Elementor custom globals**.
+
+Flow:
+
+1. **Gather** the brand — 8 colors (hex), 2 font families, logo — from the user's
+   brief, a Figma file, or by asking. If fewer than 8 colors are given, derive the
+   rest (`surface` = tint of `bg`; `muted` = lower-contrast `text`; `border` = light
+   grey) and state the derivation.
+2. **Apply** — `update-global-colors` with the 8 `{_id, title, color}` entries, then
+   `update-global-typography` with the 2 font entries. (Exact payloads in the
+   reference.)
+3. **Record** the token→value map back to the user so recipes and later edits reuse it.
+4. **Verify** — `get-global-settings` shows the 8 colors + 2 fonts by name.
+
+After intake, **bind widget colors to these globals** (or use the recorded token
+value when setting directly). Introducing an ad-hoc hex/font mid-build breaks brand
+consistency — don't.
+
 ## When the user asks to BUILD — building order
 
 > Use this section only when the user has explicitly asked you to build something. Do not run this flow on a bare `/elementor-mcp` invocation.
 
 For a new page, build top-down section by section, in small commits, verifying after each:
 
-1. `update-global-colors` + `update-global-typography` — establish design tokens
+1. **Brand kit** — if the brand tokens aren't set yet, run the brand-kit intake flow (see "Brand kit — intake & tokens" above) to establish the named global colors/typography. If already set, confirm via `get-global-settings`.
 2. `create-page({title, status: "publish", template: "elementor_canvas"})` — Canvas template removes theme header/footer chrome so your design is the only thing on the page
 3. (Via WP-CLI) Set as static front page: `wp option update show_on_front page; wp option update page_on_front <id>`
 4. Build sections — outer container → inner content container (boxed, max-width 1360px-ish) → content
