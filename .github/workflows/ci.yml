@@ -54,6 +54,23 @@ jobs:
           print(f"brand-kit ok ({len(blocks)} json blocks)")
           PY
 
+      - name: Recipe library check
+        run: |
+          python3 - <<'PY'
+          import re, pathlib
+          md = pathlib.Path("files/references/recipes.md").read_text()
+          titles = ["Hero","Services grid","Split (image + text)","Stats band","Testimonials",
+                    "CTA band","Contact","FAQ","Pricing","Logos strip"]
+          heads = re.findall(r"^##\s+(.+)$", md, re.M)
+          missing = [t for t in titles if t not in heads]
+          assert not missing, f"missing recipes: {missing}"
+          for tok in ("brand","surface","heading","text"):
+              assert tok in md, f"recipes.md should reference token '{tok}'"
+          skill = pathlib.Path("files/SKILL.md").read_text()
+          assert "references/recipes.md" in skill, "SKILL must reference recipes.md"
+          print(f"recipe library ok ({len(titles)} recipes)")
+          PY
+
       - name: dry-run smoke (no network)
         run: |
           set +e
