@@ -142,7 +142,17 @@ if [ "$MODE" = "local" ]; then
   # support sites created OUTSIDE the default ~/Local Sites/ folder (Local lets
   # you pick any location — e.g. ~/Documents/GitHub/MySite). Falls back to the
   # legacy ~/Local Sites/<name> convention when sites.json has no match.
-  LOCAL_SITES_JSON="$HOME/Library/Application Support/Local/sites.json"
+  # Local stores sites.json under different roots per OS — pick the first that
+  # exists (macOS, then the two common Linux locations).
+  LOCAL_SITES_JSON=""
+  for cand in \
+    "$HOME/Library/Application Support/Local/sites.json" \
+    "$HOME/.config/Local/sites.json" \
+    "$HOME/.local/share/Local/sites.json"; do
+    if [ -f "$cand" ]; then LOCAL_SITES_JSON="$cand"; break; fi
+  done
+  # Fall back to the macOS path so existing not-found messaging still applies.
+  LOCAL_SITES_JSON="${LOCAL_SITES_JSON:-$HOME/Library/Application Support/Local/sites.json}"
 
   # Emits one "name<TAB>path<TAB>domain" line per configured Local site.
   list_local_sites() {
