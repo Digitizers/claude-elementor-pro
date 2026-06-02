@@ -186,6 +186,10 @@ The skill auto-loads, and Claude already knows how to drive Elementor correctly.
 - Native **Form** widget (real submitting forms, no Fluent Forms), **Theme Builder** headers/footers/single/archive (no UAE/HFE), **Loop Grid** for dynamic listings, **Popups**, **Dynamic Tags**, and **Sticky/Motion** effects.
 - The kit can't *install* Pro for you (it's paid and not on wordpress.org) — install/activate it yourself, then run the setup wizard.
 
+**With ACF or Crocoblock/JetEngine (auto-detected, Tier-0):**
+- The kit detects **ACF** and **JetEngine** and switches the skill into dynamic-data mode — bind ACF fields via Pro Dynamic Tags, place JetEngine widgets via the generic `add-widget`.
+- Exact widget/tag names are **verified at runtime** (and the first write is read back), so the skill never silently writes a wrong type. Building ACF field groups, JetEngine CPTs/listings, and the Query Builder stays in their own admin UIs — the kit wires Elementor up to them, it doesn't create them.
+
 **Can't do:**
 - Install plugins on live hosts (you upload the two MCP plugin zips manually — the script tells you when)
 - Pixel-perfect translation from arbitrary HTML — Elementor's flexbox container model is the ceiling (Pro adds CSS Grid containers)
