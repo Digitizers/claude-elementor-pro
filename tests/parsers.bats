@@ -65,6 +65,29 @@ setup() {
   [ "$output" = "RGlnaXRpemVyOnNlY3JldA==" ]
 }
 
+# ---- Tier-0 dynamic-data detection (JetEngine / ACF) ----
+@test "plugin_active detects active jet-engine" {
+  run bash -c "'$SCRIPT' --self-test-fn plugin_active jet-engine < '$FIX/plugins-jet-acf.json'"
+  [ "$output" = "yes" ]
+}
+
+@test "plugin_active detects active advanced-custom-fields-pro" {
+  run bash -c "'$SCRIPT' --self-test-fn plugin_active advanced-custom-fields-pro < '$FIX/plugins-jet-acf.json'"
+  [ "$output" = "yes" ]
+}
+
+@test "plugin_active reports jet-engine absent on a plain elementor site" {
+  run bash -c "'$SCRIPT' --self-test-fn plugin_active jet-engine < '$FIX/plugins.json'"
+  [ "$output" = "no" ]
+}
+
+@test "plugin_active ACF-free slug does not match the -pro plugin (exact-segment)" {
+  # advanced-custom-fields-pro must NOT be matched by the free slug — the HAS_ACF
+  # loop checks both slugs explicitly precisely because of this.
+  run bash -c "'$SCRIPT' --self-test-fn plugin_active advanced-custom-fields < '$FIX/plugins-jet-acf.json'"
+  [ "$output" = "no" ]
+}
+
 # ---- regression: readonly builtin name (the WP_UID bug) ----
 @test "script never assigns to readonly shell builtin names" {
   # UID/EUID/PPID/BASHPID are readonly; assigning silently no-ops under set +e,

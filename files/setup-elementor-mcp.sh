@@ -408,12 +408,24 @@ HAS_PRO=$(plugin_is_active "elementor-pro")
 HAS_UAE=$(plugin_is_active "header-footer-elementor")
 HAS_EA=$(plugin_is_active "essential-addons-for-elementor-lite")
 HAS_FF=$(plugin_is_active "fluentform")
+# Dynamic-data stacks (Tier-0): JetEngine + ACF (free / Pro / Secure Custom Fields fork).
+HAS_JET=$(plugin_is_active "jet-engine")
+HAS_ACF="no"
+for acf_slug in advanced-custom-fields advanced-custom-fields-pro secure-custom-fields; do
+  [ "$(plugin_is_active "$acf_slug")" = "yes" ] && { HAS_ACF="yes"; break; }
+done
 
 [ "$HAS_ELEMENTOR" = "yes" ] && ok "Elementor (free) — active" || warn "Elementor — not active"
 if [ "$HAS_PRO" = "yes" ]; then
   ok "Elementor Pro — active (native Form, Theme Builder, Loop Grid, Popups available)"
 else
   info "Elementor Pro — not active (free tier; using UAE + Fluent Forms workarounds)"
+fi
+# Dynamic-data stacks — reported so the skill branches into ACF/JetEngine guidance.
+[ "$HAS_JET" = "yes" ] && ok "Crocoblock JetEngine — active (dynamic listings/fields via add-widget)"
+if [ "$HAS_ACF" = "yes" ]; then
+  [ "$HAS_PRO" = "yes" ] && ok "ACF — active (bind via Pro dynamic tags)" \
+                        || warn "ACF — active, but dynamic-tag binding needs Elementor Pro"
 fi
 [ "$ACTIVE_THEME" = "hello-elementor" ] && ok "Theme: Hello Elementor — active" || warn "Theme: $ACTIVE_THEME (Hello Elementor recommended)"
 # UAE/HFE is only needed for headers/footers on the FREE tier — Pro has Theme Builder.
