@@ -467,7 +467,7 @@ EOF
 
       ask "Also install Essential Addons (optional but useful)? [y/N]"
       read -r DO_OPT
-      [[ "$DO_OPT" =~ ^[Yy]$ ]] && install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
+      [[ "$DO_OPT" =~ ^[Yy]$ ]] && [ "$HAS_EA" != "yes" ] && install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
     else
       info "Skipped auto-install. Install missing baseline pieces yourself before using Claude to build."
     fi
@@ -501,8 +501,8 @@ EOF
       ask "Also install Essential Addons + Fluent Forms (optional but useful)? [y/N]"
       read -r DO_OPT
       if [[ "$DO_OPT" =~ ^[Yy]$ ]]; then
-        install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
-        install_wp_plugin "fluentform" "Fluent Forms"
+        [ "$HAS_EA" != "yes" ] && install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
+        [ "$HAS_FF" != "yes" ] && install_wp_plugin "fluentform" "Fluent Forms"
       fi
     else
       info "Skipped auto-install. You'll need to install the missing plugins yourself before using Claude to build."
