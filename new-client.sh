@@ -158,6 +158,26 @@ else
   info "Elementor Pro — not active (free tier; UAE + Fluent Forms workarounds apply)"
 fi
 
+# Dynamic-data stacks (Tier-0 support): report so the skill can branch. ACF ships
+# under three slugs — free, Pro, and the WP.org "Secure Custom Fields" fork.
+HAS_JET="no"
+[ "$(printf '%s' "$PLUGINS" | plugin_active jet-engine)" = "yes" ] && HAS_JET="yes"
+HAS_ACF="no"
+for acf_slug in advanced-custom-fields advanced-custom-fields-pro secure-custom-fields; do
+  [ "$(printf '%s' "$PLUGINS" | plugin_active "$acf_slug")" = "yes" ] && { HAS_ACF="yes"; break; }
+done
+[ "$HAS_JET" = "yes" ] && ok "Crocoblock JetEngine — active (dynamic listings / fields via add-widget)" \
+                       || info "JetEngine — not active"
+if [ "$HAS_ACF" = "yes" ]; then
+  if [ "$HAS_PRO" = "yes" ]; then
+    ok "ACF — active (bind fields via Pro dynamic tags)"
+  else
+    warn "ACF — active, but dynamic-tag binding needs Elementor Pro (or a free dynamic-tag plugin)"
+  fi
+else
+  info "ACF — not active"
+fi
+
 # ---- 4/5. install MCP plugins + verify route -------------------------------
 PROJECT_DIR="${PROJECT_DIR:-}"
 if [ -z "$PROJECT_DIR" ]; then
@@ -251,4 +271,6 @@ fi
 # ---- done -------------------------------------------------------------------
 printf "\n${BOLD}${GREEN}✓ Client ready${RESET}\n"
 [ "$HAS_PRO" = "yes" ] && printf "  ${DIM}Elementor Pro detected — native Form / Theme Builder / Loop Grid / Popups.${RESET}\n"
+[ "$HAS_JET" = "yes" ] && printf "  ${DIM}JetEngine detected — place Jet widgets via add-widget (discover types at runtime).${RESET}\n"
+[ "$HAS_ACF" = "yes" ] && printf "  ${DIM}ACF detected — bind fields via dynamic tags (needs Pro).${RESET}\n"
 printf "  ${BOLD}Next:${RESET} open Claude Code in ${CYAN}%s${RESET}, approve the '%s' MCP, then build.\n" "$PROJECT_DIR" "$MCP_NAME"
