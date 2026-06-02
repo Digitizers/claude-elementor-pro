@@ -41,3 +41,6 @@ tsconfig.tsbuildinfo
 
 # Playwright MCP screenshot/console artifacts
 .playwright-mcp/
+
+# vendored test runner
+tests/.bats/
