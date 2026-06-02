@@ -142,7 +142,17 @@ if [ "$MODE" = "local" ]; then
   # support sites created OUTSIDE the default ~/Local Sites/ folder (Local lets
   # you pick any location — e.g. ~/Documents/GitHub/MySite). Falls back to the
   # legacy ~/Local Sites/<name> convention when sites.json has no match.
-  LOCAL_SITES_JSON="$HOME/Library/Application Support/Local/sites.json"
+  # Local stores sites.json under different roots per OS — pick the first that
+  # exists (macOS, then the two common Linux locations).
+  LOCAL_SITES_JSON=""
+  for cand in \
+    "$HOME/Library/Application Support/Local/sites.json" \
+    "$HOME/.config/Local/sites.json" \
+    "$HOME/.local/share/Local/sites.json"; do
+    if [ -f "$cand" ]; then LOCAL_SITES_JSON="$cand"; break; fi
+  done
+  # Fall back to the macOS path so existing not-found messaging still applies.
+  LOCAL_SITES_JSON="${LOCAL_SITES_JSON:-$HOME/Library/Application Support/Local/sites.json}"
 
   # Emits one "name<TAB>path<TAB>domain" line per configured Local site.
   list_local_sites() {
@@ -457,7 +467,7 @@ EOF
 
       ask "Also install Essential Addons (optional but useful)? [y/N]"
       read -r DO_OPT
-      [[ "$DO_OPT" =~ ^[Yy]$ ]] && install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
+      [[ "$DO_OPT" =~ ^[Yy]$ ]] && [ "$HAS_EA" != "yes" ] && install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
     else
       info "Skipped auto-install. Install missing baseline pieces yourself before using Claude to build."
     fi
@@ -491,8 +501,8 @@ EOF
       ask "Also install Essential Addons + Fluent Forms (optional but useful)? [y/N]"
       read -r DO_OPT
       if [[ "$DO_OPT" =~ ^[Yy]$ ]]; then
-        install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
-        install_wp_plugin "fluentform" "Fluent Forms"
+        [ "$HAS_EA" != "yes" ] && install_wp_plugin "essential-addons-for-elementor-lite" "Essential Addons (lite)"
+        [ "$HAS_FF" != "yes" ] && install_wp_plugin "fluentform" "Fluent Forms"
       fi
     else
       info "Skipped auto-install. You'll need to install the missing plugins yourself before using Claude to build."

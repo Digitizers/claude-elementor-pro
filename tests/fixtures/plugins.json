@@ -1,0 +1,5 @@
+[
+  { "plugin": "elementor/elementor.php", "status": "active" },
+  { "plugin": "elementor-pro/elementor-pro.php", "status": "inactive" },
+  { "plugin": "hello-elementor/hello-elementor.php", "status": "active" }
+]

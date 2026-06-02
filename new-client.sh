@@ -41,7 +41,50 @@ info(){ printf "  ${DIM}%s${RESET}\n" "$*"; }
 abort(){ fail "$1"; exit 1; }
 
 need(){ command -v "$1" >/dev/null 2>&1 || abort "Missing required command: $1"; }
-need curl; need python3
+need python3   # parsers need python3; curl is checked once we start real work
+
+# ---- pure parsers (stdin/arg based; unit-tested via --self-test-fn) ----------
+# Kept inline (not a shared lib) so this script stays a single droppable file.
+# NB: these intentionally duplicate a base64 helper that also exists in
+# setup-elementor-mcp.sh — accepted duplication, do not factor into a lib.
+
+# stdin: /wp-json/wp/v2/users/me JSON -> the numeric id (empty on bad auth/garbage)
+parse_user_id(){ python3 -c 'import sys,json
+try: print(json.load(sys.stdin).get("id",""))
+except Exception: print("")' 2>/dev/null; }
+
+# stdin: /wp-json/wp/v2/plugins JSON ; arg1: slug -> "yes"|"no" (graceful "no" on garbage)
+plugin_active(){ python3 -c 'import sys,json
+slug=sys.argv[1]
+try: d=json.load(sys.stdin)
+except Exception: d=[]
+print("yes" if isinstance(d,list) and any(p.get("plugin","").startswith(slug+"/") and p.get("status")=="active" for p in d) else "no")' "$1" 2>/dev/null; }
+
+# stdin: GitHub releases/latest JSON -> first .zip asset url, else zipball_url, else ""
+release_zip_url(){ python3 -c 'import sys,json
+try: d=json.load(sys.stdin)
+except Exception: d={}
+a=[x for x in d.get("assets",[]) if str(x.get("name","")).endswith(".zip")]
+print(a[0]["browser_download_url"] if a else d.get("zipball_url",""))' 2>/dev/null; }
+
+# arg1: user ; arg2: app password -> base64("user:pass") with no trailing newline
+b64_auth(){ printf '%s:%s' "$1" "$2" | python3 -c 'import sys,base64;sys.stdout.write(base64.b64encode(sys.stdin.buffer.read()).decode())'; }
+
+# arg1: sites.json path ; arg2: site name -> "<path>\t<domain>" (empty if not found)
+resolve_local_site(){ python3 - "$1" "$2" <<'PY' 2>/dev/null
+import json,sys
+try: d=json.load(open(sys.argv[1]))
+except Exception: sys.exit(0)
+name=sys.argv[2]
+for v in (d.values() if isinstance(d,dict) else d):
+    if isinstance(v,dict) and v.get("name")==name:
+        print("\t".join([v.get("path",""), v.get("domain","")])); break
+PY
+}
+
+# Hidden test hook: `new-client.sh --self-test-fn <fn> [args...]` runs one
+# function (reading stdin) and exits. Never touches the network.
+if [ "${1:-}" = "--self-test-fn" ]; then shift; fn="$1"; shift || true; "$fn" "$@"; exit $?; fi
 
 # ---- args -------------------------------------------------------------------
 MODE=""; SITE_REF=""; WP_USER=""; WP_APP_PWD=""
@@ -68,21 +111,14 @@ done
 [ -n "$WP_USER" ]    || abort "Missing --user"
 [ -n "$WP_APP_PWD" ] || abort "Missing --app-pass"
 
+need curl   # real work starts here; parsers above already validated python3
+
 # ---- 1. resolve site --------------------------------------------------------
 step "1/7  Resolve site ($MODE)"
 SITE_PATH=""; SITE_URL=""
 if [ "$MODE" = "local" ]; then
   SITES_JSON="$HOME/Library/Application Support/Local/sites.json"
-  RESOLVED=$(python3 - "$SITES_JSON" "$SITE_REF" <<'PY' 2>/dev/null
-import json,sys
-try: d=json.load(open(sys.argv[1]))
-except Exception: sys.exit(0)
-name=sys.argv[2]
-for v in (d.values() if isinstance(d,dict) else d):
-    if isinstance(v,dict) and v.get("name")==name:
-        print("\t".join([v.get("path",""), v.get("domain","")])); break
-PY
-)
+  RESOLVED=$(resolve_local_site "$SITES_JSON" "$SITE_REF")
   if [ -n "$RESOLVED" ]; then
     SITE_PATH="$(printf '%s' "$RESOLVED" | cut -f1)/app/public"
     SITE_URL="http://$(printf '%s' "$RESOLVED" | cut -f2)"
@@ -106,21 +142,15 @@ case "$CODE" in 200|301|302) ok "REST reachable ($CODE)";; 000) abort "Cannot re
 
 # NB: do NOT name this UID — that's a readonly shell builtin (the OS user id).
 ME=$(curl -s -u "$WP_USER:$WP_APP_PWD" --max-time 10 "$SITE_URL/wp-json/wp/v2/users/me" || echo '{}')
-WP_UID=$(printf '%s' "$ME" | python3 -c 'import sys,json
-try: print(json.load(sys.stdin).get("id",""))
-except Exception: print("")' 2>/dev/null)
+WP_UID=$(printf '%s' "$ME" | parse_user_id)
 [ -n "$WP_UID" ] || abort "Auth failed for user '$WP_USER'. Check the application password / username slug."
 ok "Authenticated (WP user id $WP_UID)"
 
 # ---- 3. detect Elementor + Pro ---------------------------------------------
 step "3/7  Detect Elementor / Pro"
 PLUGINS=$(curl -s -u "$WP_USER:$WP_APP_PWD" --max-time 10 "$SITE_URL/wp-json/wp/v2/plugins" || echo '[]')
-detect(){ printf '%s' "$PLUGINS" | python3 -c 'import sys,json
-slug=sys.argv[1]
-try: d=json.load(sys.stdin)
-except Exception: d=[]
-print("yes" if isinstance(d,list) and any(p.get("plugin","").startswith(slug+"/") and p.get("status")=="active" for p in d) else "no")' "$1" 2>/dev/null; }
-HAS_EL=$(detect elementor); HAS_PRO=$(detect elementor-pro)
+HAS_EL=$(printf '%s' "$PLUGINS" | plugin_active elementor)
+HAS_PRO=$(printf '%s' "$PLUGINS" | plugin_active elementor-pro)
 [ "$HAS_EL" = "yes" ] && ok "Elementor — active" || warn "Elementor — NOT active (install it before building)"
 if [ "$HAS_PRO" = "yes" ]; then
   ok "Elementor Pro — active (native Form / Theme Builder / Loop Grid / Popups available)"
@@ -144,7 +174,7 @@ elif [ -n "$DRY_RUN" ]; then
 else
   need unzip; need zip
   WORK=$(mktemp -d); trap 'rm -rf "$WORK"' EXIT
-  dl(){ curl -s "https://api.github.com/repos/$1/releases/latest" | python3 -c 'import sys,json;d=json.load(sys.stdin);a=[x for x in d.get("assets",[]) if x["name"].endswith(".zip")];print(a[0]["browser_download_url"] if a else d.get("zipball_url",""))'; }
+  dl(){ curl -s "https://api.github.com/repos/$1/releases/latest" | release_zip_url; }
   info "Downloading mcp-adapter + elementor-mcp..."
   curl -sL -o "$WORK/mcp-adapter.zip" "$(dl WordPress/mcp-adapter)" || abort "adapter download failed"
   curl -sL -o "$WORK/em-src.zip" "$(dl msrbuilds/elementor-mcp)" || abort "elementor-mcp download failed"
@@ -181,7 +211,7 @@ else warn "Route not visible yet — check both MCP plugins are active in WP Adm
 
 # ---- 6. write .mcp.json -----------------------------------------------------
 step "6/7  .mcp.json → $PROJECT_DIR"
-AUTH_B64=$(printf '%s:%s' "$WP_USER" "$WP_APP_PWD" | python3 -c 'import sys,base64;sys.stdout.write(base64.b64encode(sys.stdin.buffer.read()).decode())')
+AUTH_B64=$(b64_auth "$WP_USER" "$WP_APP_PWD")
 read -r -d '' CONFIG <<JSON
 {
   "mcpServers": {

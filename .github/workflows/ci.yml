@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: shellcheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          severity: warning
+          scandir: '.'
+          additional_files: 'new-client.sh INSTALL.sh'
+        env:
+          SHELLCHECK_OPTS: -e SC1091
+
+      - name: bash -n syntax
+        run: |
+          for f in INSTALL.sh new-client.sh files/setup-elementor-mcp.sh; do
+            echo "syntax: $f"; bash -n "$f"
+          done
+
+      - name: SKILL.md frontmatter lint
+        run: |
+          python3 - <<'PY'
+          import re, pathlib
+          p = pathlib.Path("files/SKILL.md").read_text()
+          m = re.match(r'^---\n(.*?)\n---\n', p, re.S)
+          assert m, "SKILL.md missing YAML frontmatter block"
+          fm = m.group(1)
+          for key in ("name", "description"):
+              mm = re.search(rf'^{key}:\s*(.+)$', fm, re.M)
+              assert mm and mm.group(1).strip(), f"SKILL.md frontmatter missing non-empty {key}"
+          print("SKILL.md frontmatter OK")
+          PY
+
+      - name: dry-run smoke (no network)
+        run: |
+          set +e
+          bash new-client.sh --dry-run --local "NoSuchSite__xyz" --user u --app-pass p
+          code=$?
+          # nonexistent local site aborts at resolution (exit 1); a crash/traceback
+          # would be a different failure. Accept 0 or 1, reject anything else.
+          if [ "$code" -gt 1 ]; then echo "unexpected exit $code"; exit 1; fi
+          echo "dry-run smoke ok (exit $code)"
+
+  bats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bats
+        run: sudo apt-get update && sudo apt-get install -y bats
+      - name: Run tests
+        run: bash tests/run.sh

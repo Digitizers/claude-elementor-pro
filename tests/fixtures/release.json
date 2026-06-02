@@ -1,0 +1,7 @@
+{
+  "zipball_url": "https://api.github.com/repos/acme/widget/zipball/v1",
+  "assets": [
+    { "name": "widget-dev.txt", "browser_download_url": "https://example.com/dev.txt" },
+    { "name": "widget.zip", "browser_download_url": "https://example.com/widget.zip" }
+  ]
+}
