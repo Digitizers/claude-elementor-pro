@@ -1,6 +1,15 @@
-# Claude + Elementor Pro
+# Claude + Elementor Pro — Claude Code & OpenClaw Skill
 
-Build WordPress sites with AI — design with Claude Code, then have Claude build it directly inside your Elementor site. No more rebuilding mockups by hand.
+[![CI](https://github.com/Digitizers/claude-elementor-pro/actions/workflows/ci.yml/badge.svg)](https://github.com/Digitizers/claude-elementor-pro/actions/workflows/ci.yml)
+![Claude Code Skill](https://img.shields.io/badge/Claude_Code-Skill-d97757)
+![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-purple)
+![Elementor](https://img.shields.io/badge/Elementor-Pro-92003b)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+
+Build **WordPress sites with AI** — design with Claude Code, then have Claude build it directly inside your Elementor site. No more rebuilding mockups by hand.
+
+A **Claude Code & OpenClaw skill** that teaches Claude to build directly inside Elementor. Not just a mockup tool — Claude places real sections, widgets, colors, and typography into your live Elementor site, with Pro/free auto-detection and a widget-vs-HTML discipline.
 
 > **The short version:** This kit teaches Claude (Anthropic's AI) how to talk to your WordPress site through the Elementor MCP server. You design pages in Claude Code, then Claude places sections, widgets, colors, and typography directly into Elementor for you. Works on local sites (Local-by-Flywheel) and live hosts.
 
@@ -233,3 +242,14 @@ The skill, setup script, installers, and docs in this kit are MIT-licensed (see 
 ## Questions?
 
 Open an issue on this repo. Don't promise me you'll wait for an answer, but I read everything.
+
+## Links
+
+- **Repository:** https://github.com/Digitizers/claude-elementor-pro
+- **OpenClaw:** https://openclaw.ai
+- **Elementor MCP server:** https://github.com/msrbuilds/elementor-mcp
+- **Digitizer:** https://www.digitizer.studio
+
+---
+
+Built with ❤️ for OpenClaw by [Digitizer](https://www.digitizer.studio)
