@@ -46,6 +46,8 @@ That's it for unprompted tool calls. **Anything that creates, modifies, or delet
 
 ## First-session setup (when MCP not yet connected)
 
+> **Engine:** this skill drives our fork `Digitizers/elementor-mcp` (94 tools, 4.x-correct), a single self-contained plugin. **Never run it alongside the paid "MCP Tools for Elementor (Premium)" — same class names → fatal.** Details + switch commands → `references/engine-and-premium.md`.
+
 If the user has a WordPress site but no `.mcp.json` and no `elementor` MCP loaded:
 
 1. **Check whether they're using Local-by-Flywheel or a live host.** Setup paths differ.
@@ -300,6 +302,8 @@ Recipes reuse the rest of this skill's rules (native widgets not HTML dumps,
 them.
 
 ## When the user asks to BUILD — building order
+
+**Studio voice default:** clean, confident, conversion-focused; real copy (no lorem); accessible contrast; consistent spacing scale. Per-client tone comes from the matched vertical (see `references/verticals/`).
 
 > Use this section only when the user has explicitly asked you to build something. Do not run this flow on a bare `/elementor-mcp` invocation.
 

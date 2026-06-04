@@ -10,8 +10,8 @@
 #   1. Asks Local vs live host
 #   2. Validates connectivity + REST auth
 #   3. Confirms Elementor + Hello Elementor are installed (warns if not)
-#   4. Downloads + installs WordPress MCP Adapter and elementor-mcp plugins
-#      (handles the GitHub-only zips, repacks elementor-mcp source zipball)
+#   4. Downloads + installs the elementor-mcp fork (bundles the MCP Adapter)
+#      (handles the GitHub-only zip, repacks the source zipball)
 #   5. Verifies the /mcp/elementor-mcp-server route appears
 #   6. Writes .mcp.json in the current directory
 #
@@ -522,33 +522,21 @@ EOF
   fi
 fi
 
-# ---- 7. Install MCP plugins --------------------------------------------------
-step "7/8  Installing MCP plugins"
+# ---- 7. Install MCP plugin ---------------------------------------------------
+step "7/8  Installing MCP plugin"
 
-# Are they already there?
+# Is it already there?
 NS_JSON=$(curl -s -u "$WP_USER:$WP_APP_PWD" --max-time 10 "$SITE_URL/wp-json/" || echo "{}")
 HAS_MCP=$(echo "$NS_JSON" | jq_lenient_contains '.namespaces' 'mcp' 2>/dev/null || echo "no")
 
 if [ "$HAS_MCP" = "yes" ]; then
   ok "MCP namespace already registered — skipping plugin install."
 else
-  info "Downloading WordPress MCP Adapter (latest GitHub release)..."
   WORK=$(mktemp -d)
   trap 'rm -rf "$WORK"' EXIT
 
-  ADAPTER_URL=$(curl -s "https://api.github.com/repos/WordPress/mcp-adapter/releases/latest" \
-    | python3 -c "$JQ_LENIENT_PY"'
-import sys
-d = _load(sys.stdin.read())
-a = [a for a in d.get("assets",[]) if a["name"].endswith(".zip")]
-print(a[0]["browser_download_url"] if a else d.get("zipball_url",""))
-')
-  [ -n "$ADAPTER_URL" ] || abort "Could not fetch mcp-adapter download URL from GitHub."
-  curl -sL -o "$WORK/mcp-adapter.zip" "$ADAPTER_URL" || abort "Adapter download failed."
-  ok "Downloaded mcp-adapter.zip"
-
-  info "Downloading elementor-mcp (latest GitHub release)..."
-  EM_ZIPBALL=$(curl -s "https://api.github.com/repos/msrbuilds/elementor-mcp/releases/latest" \
+  info "Downloading the elementor-mcp fork (bundles the MCP Adapter, latest GitHub release)..."
+  EM_ZIPBALL=$(curl -s "https://api.github.com/repos/Digitizers/elementor-mcp/releases/latest" \
     | python3 -c "$JQ_LENIENT_PY"'
 import sys
 d = _load(sys.stdin.read())
@@ -560,7 +548,7 @@ print(a[0]["browser_download_url"] if a else d.get("zipball_url",""))
 
   # Repack with clean folder name (zipballs have ugly hash-suffixed dirs)
   ( cd "$WORK" && unzip -q elementor-mcp-src.zip )
-  EM_DIR=$(find "$WORK" -maxdepth 1 -type d -name "*elementor-mcp*" ! -name "msrbuilds-elementor-mcp" 2>/dev/null | head -1)
+  EM_DIR=$(find "$WORK" -maxdepth 1 -type d -name "*elementor-mcp*" ! -name "Digitizers-elementor-mcp" 2>/dev/null | head -1)
   if [ -n "$EM_DIR" ] && [ "$(basename "$EM_DIR")" != "elementor-mcp" ]; then
     mv "$EM_DIR" "$WORK/elementor-mcp"
   fi
@@ -587,11 +575,7 @@ print(a[0]["browser_download_url"] if a else d.get("zipball_url",""))
 
     PHPRUN=( "$LOCAL_PHP" -d "mysqli.default_socket=$SOCK" -d "pdo_mysql.default_socket=$SOCK" )
 
-    info "Installing mcp-adapter..."
-    "${PHPRUN[@]}" "$LOCAL_WP" --path="$SITE_PATH" --skip-plugins --skip-themes plugin install "$WORK/mcp-adapter.zip" --activate --force >/dev/null 2>&1 \
-      && ok "mcp-adapter installed + activated" || fail "mcp-adapter install failed"
-
-    info "Installing elementor-mcp..."
+    info "Installing elementor-mcp (fork — bundles the MCP Adapter)..."
     "${PHPRUN[@]}" "$LOCAL_WP" --path="$SITE_PATH" --skip-plugins --skip-themes plugin install "$WORK/elementor-mcp.zip" --activate --force >/dev/null 2>&1 \
       && ok "elementor-mcp installed + activated" || fail "elementor-mcp install failed"
 
@@ -599,16 +583,15 @@ print(a[0]["browser_download_url"] if a else d.get("zipball_url",""))
     # Live host: REST upload not supported for arbitrary zips. Print instructions.
     warn "Live hosts: REST API can't install arbitrary plugin zips."
     info ""
-    info "Two zips ready at:"
-    info "  $WORK/mcp-adapter.zip"
+    info "Zip ready at:"
     info "  $WORK/elementor-mcp.zip"
     info ""
-    info "Upload them via:"
+    info "Upload it via:"
     info "  ${SITE_URL}/wp-admin/plugin-install.php?tab=upload"
     info ""
-    info "(One at a time: choose file → Install Now → Activate Plugin.)"
+    info "(Choose file → Install Now → Activate Plugin.)"
     info ""
-    ask "Press Enter once both are uploaded and activated..."
+    ask "Press Enter once it's uploaded and activated..."
     read -r _
   fi
 fi
@@ -630,24 +613,23 @@ verify_mcp_namespace() {
 if verify_mcp_namespace; then
   ok "Elementor MCP server route registered ✓"
 else
-  # Recovery loop — common cause: plugins installed but didn't auto-activate
+  # Recovery loop — common cause: plugin installed but didn't auto-activate
   warn "MCP namespace not yet registered."
   cat <<EOF
 
-    This usually means one of the MCP plugins installed but didn't
+    This usually means the MCP plugin installed but didn't
     auto-activate. WordPress sometimes returns success for the install
     request even when activation was skipped (load order, race condition,
     or PHP-FPM opcode cache).
 
-    Please open WP Admin → Plugins in your browser and confirm BOTH
-    of these are active (look for "Deactivate" not "Activate"):
+    Please open WP Admin → Plugins in your browser and confirm this
+    is active (look for "Deactivate" not "Activate"):
 
-      • MCP Adapter
-      • MCP Tools for Elementor
+      • MCP Tools for Elementor   (the fork — bundles the MCP Adapter)
 
     URL: ${CYAN}${SITE_URL}/wp-admin/plugins.php${RESET}
 
-    If either is grey/inactive, click "Activate" on it.
+    If it's grey/inactive, click "Activate" on it.
 
 EOF
   ask "Press Enter when both are active (or 'skip' to bypass this check)..."
@@ -770,6 +752,6 @@ cat <<EOF
 
   ${BOLD}Reference:${RESET}
     Skill file: ~/.claude/skills/elementor-mcp/SKILL.md
-    MCP plugin: https://github.com/msrbuilds/elementor-mcp
+    MCP plugin: https://github.com/Digitizers/elementor-mcp
 
 EOF
