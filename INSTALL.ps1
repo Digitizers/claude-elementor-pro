@@ -73,6 +73,15 @@ if (Test-Path $SkillDest) {
     Write-Ok "Installed SKILL.md"
 }
 
+# Reference docs (progressive disclosure -- SKILL.md points to these)
+$refsSrc = Join-Path $SrcFiles "references"
+if (Test-Path $refsSrc) {
+    $refsDst = Join-Path $SkillDir "references"
+    New-Item -ItemType Directory -Force -Path $refsDst | Out-Null
+    Copy-Item -Recurse -Force (Join-Path $refsSrc "*") $refsDst
+    Write-Ok "Installed references/"
+}
+
 # Script
 $ScriptDest = Join-Path $ScriptDir "setup-elementor-mcp.sh"
 if (Test-Path $ScriptDest) {

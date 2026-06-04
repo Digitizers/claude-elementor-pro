@@ -61,6 +61,13 @@ else
   ok "Installed SKILL.md"
 fi
 
+# Install the reference docs (progressive disclosure — SKILL.md points to these)
+if [ -d "$SRC_FILES/references" ]; then
+  mkdir -p "$SKILL_DIR/references"
+  cp -R "$SRC_FILES/references/." "$SKILL_DIR/references/"
+  ok "Installed references/ ($(find "$SRC_FILES/references" -name '*.md' | wc -l | tr -d ' ') docs)"
+fi
+
 # Script
 if [ -f "$SCRIPT_DIR/setup-elementor-mcp.sh" ]; then
   warn "setup-elementor-mcp.sh already exists at $SCRIPT_DIR/"

@@ -6,7 +6,7 @@
 #   1. Resolve the site (Local-by-Flywheel via sites.json, or a live URL)
 #   2. Verify connectivity + REST auth
 #   3. Detect Elementor + Elementor Pro (report which tools will be available)
-#   4. Install the MCP Adapter + elementor-mcp plugins
+#   4. Install the elementor-mcp fork (bundles the MCP Adapter)
 #        - Local: via Local's bundled WP-CLI (auto-finds the per-site socket)
 #        - Live:  prints the two zip paths for manual upload
 #   5. Verify the /mcp/elementor-mcp-server route
@@ -178,7 +178,7 @@ else
   info "ACF — not active"
 fi
 
-# ---- 4/5. install MCP plugins + verify route -------------------------------
+# ---- 4/5. install MCP plugin + verify route --------------------------------
 PROJECT_DIR="${PROJECT_DIR:-}"
 if [ -z "$PROJECT_DIR" ]; then
   if [ "$MODE" = "local" ]; then PROJECT_DIR="$(dirname "$(dirname "$SITE_PATH")")"; else PROJECT_DIR="$(pwd)"; fi
@@ -186,18 +186,17 @@ fi
 
 has_route(){ curl -s -u "$WP_USER:$WP_APP_PWD" --max-time 10 "$SITE_URL/wp-json/" 2>/dev/null | grep -q "elementor-mcp-server"; }
 
-step "4/7  MCP plugins"
+step "4/7  MCP plugin"
 if has_route; then
   ok "MCP route already registered — skipping install."
 elif [ -n "$DRY_RUN" ]; then
-  info "[dry-run] would download + install mcp-adapter + elementor-mcp"
+  info "[dry-run] would download + install the elementor-mcp fork (bundles the MCP Adapter)"
 else
   need unzip; need zip
   WORK=$(mktemp -d); trap 'rm -rf "$WORK"' EXIT
   dl(){ curl -s "https://api.github.com/repos/$1/releases/latest" | release_zip_url; }
-  info "Downloading mcp-adapter + elementor-mcp..."
-  curl -sL -o "$WORK/mcp-adapter.zip" "$(dl WordPress/mcp-adapter)" || abort "adapter download failed"
-  curl -sL -o "$WORK/em-src.zip" "$(dl msrbuilds/elementor-mcp)" || abort "elementor-mcp download failed"
+  info "Downloading the elementor-mcp fork (bundles the MCP Adapter)..."
+  curl -sL -o "$WORK/em-src.zip" "$(dl Digitizers/elementor-mcp)" || abort "elementor-mcp download failed"
   ( cd "$WORK" && unzip -q em-src.zip )
   EM_DIR=$(find "$WORK" -maxdepth 1 -type d -name "*elementor-mcp*" | head -1)
   if [ -n "$EM_DIR" ] && [ "$(basename "$EM_DIR")" != "elementor-mcp" ]; then mv "$EM_DIR" "$WORK/elementor-mcp"; fi
@@ -213,13 +212,12 @@ else
     done < <(find "$HOME/Library/Application Support/Local/run" -name mysqld.sock -print0 2>/dev/null)
     [ -n "$SOCK" ] || abort "No live MySQL socket for this site — start it in Local."
     WP(){ "$LOCAL_PHP" -d "mysqli.default_socket=$SOCK" -d "pdo_mysql.default_socket=$SOCK" "$LOCAL_WP" --path="$SITE_PATH" "$@"; }
-    WP --skip-plugins --skip-themes plugin install "$WORK/mcp-adapter.zip" --activate --force >/dev/null 2>&1 && ok "mcp-adapter installed" || fail "mcp-adapter install failed"
     WP --skip-plugins --skip-themes plugin install "$EM_ZIP" --activate --force >/dev/null 2>&1 && ok "elementor-mcp installed" || fail "elementor-mcp install failed"
   else
-    warn "Live host: REST can't install arbitrary zips. Upload these manually then re-run:"
-    info "  $WORK/mcp-adapter.zip"; info "  $EM_ZIP"
+    warn "Live host: REST can't install arbitrary zips. Upload this manually then re-run:"
+    info "  $EM_ZIP"
     info "  via ${SITE_URL}/wp-admin/plugin-install.php?tab=upload"
-    abort "Stopping — install the two plugins, then re-run new-client.sh."
+    abort "Stopping — install the plugin, then re-run new-client.sh."
   fi
 fi
 
@@ -227,7 +225,7 @@ step "5/7  Verify route"
 sleep 2
 if has_route; then ok "/wp-json/mcp/elementor-mcp-server registered"
 elif [ -n "$DRY_RUN" ]; then info "[dry-run] skipped"
-else warn "Route not visible yet — check both MCP plugins are active in WP Admin."; fi
+else warn "Route not visible yet — check the elementor-mcp plugin is active in WP Admin."; fi
 
 # ---- 6. write .mcp.json -----------------------------------------------------
 step "6/7  .mcp.json → $PROJECT_DIR"
