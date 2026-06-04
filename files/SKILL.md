@@ -305,6 +305,8 @@ them.
 
 **Studio voice default:** clean, confident, conversion-focused; real copy (no lorem); accessible contrast; consistent spacing scale. Per-client tone comes from the matched vertical (see `references/verticals/`).
 
+**Vertical routing:** if the client matches a known vertical, load its pack first for voice + design system + section flow: `references/verticals/{dental,salon,car-wash,local-business,portfolio}.md`. No match → proceed with the studio voice default + the recipe library.
+
 > Use this section only when the user has explicitly asked you to build something. Do not run this flow on a bare `/elementor-mcp` invocation.
 
 For a new page, build top-down section by section, in small commits, verifying after each:
