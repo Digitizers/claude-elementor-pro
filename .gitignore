@@ -44,3 +44,6 @@ tsconfig.tsbuildinfo
 
 # vendored test runner
 tests/.bats/
+
+# references
+/docs/refs/
