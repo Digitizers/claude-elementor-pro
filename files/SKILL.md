@@ -402,6 +402,8 @@ Use `ToolSearch` query format `select:tool1,tool2,tool3` to load multiple in one
 
 The Elementor MCP is for **building and editing page structure** (containers, widgets, Pro widgets). It does **not** cover bulk content ops, media-library uploads, SEO metadata, custom fields, or WooCommerce. For those, a sibling toolkit — **[`wordpress-api-pro`](https://github.com/Digitizers/wordpress-api-pro)** (Python REST scripts, App-Password auth) — fills the gaps. Same auth model (WordPress Application Password), so it works against the very same site.
 
+This skill is one stage of the studio toolbox (audit → build → content → host → ads). **Full handoffs + a "where am I" router → load `references/lifecycle.md`.**
+
 **Reach for `wordpress-api-pro` instead of the MCP when the task is:**
 
 | Task | Script |
