@@ -7,7 +7,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 
-Build **WordPress sites with AI** — design with Claude Code, then have Claude build it directly inside your Elementor site. No more rebuilding mockups by hand.
+Build **WordPress sites with AI** — design with Claude Code, then have Claude build it directly inside your [Elementor](https://digitizer.li/elementor) Free or Pro site. No more rebuilding mockups by hand.
 
 A **Claude Code & OpenClaw skill** that teaches Claude to build directly inside Elementor. Not just a mockup tool — Claude places real sections, widgets, colors, and typography into your live Elementor site, with Pro/free auto-detection and a widget-vs-HTML discipline.
 
