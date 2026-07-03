@@ -36,12 +36,27 @@ cat <<'BANNER'
 BANNER
 
 step "Creating destination folders"
-SKILL_DIR="$HOME/.claude/skills/elementor-mcp"
+SKILL_DIR="$HOME/.claude/skills/elementor-pro-studio"
 SCRIPT_DIR="$HOME/.claude/scripts"
 mkdir -p "$SKILL_DIR"
 mkdir -p "$SCRIPT_DIR"
 ok "$SKILL_DIR"
 ok "$SCRIPT_DIR"
+
+# The skill was previously installed as "elementor-mcp" — migrate/remove that
+# old directory so Claude doesn't end up loading both.
+OLD_SKILL_DIR="$HOME/.claude/skills/elementor-mcp"
+if [ -d "$OLD_SKILL_DIR" ]; then
+  warn "Found a previous install at $OLD_SKILL_DIR (this kit's old skill name)."
+  printf "    Remove it now that the skill installs as elementor-pro-studio? [y/N] "
+  read -r ans
+  if [[ "$ans" =~ ^[Yy]$ ]]; then
+    rm -rf "$OLD_SKILL_DIR"
+    ok "Removed old $OLD_SKILL_DIR"
+  else
+    warn "Leaving $OLD_SKILL_DIR in place — remove it manually to avoid Claude loading both the old and new skill."
+  fi
+fi
 
 step "Copying files"
 
@@ -91,7 +106,7 @@ cat <<EOF
   ${BOLD}${GREEN}✓ Install complete${RESET}
 
   ${BOLD}Files installed at:${RESET}
-    ${DIM}~/.claude/skills/elementor-mcp/SKILL.md${RESET}
+    ${DIM}~/.claude/skills/elementor-pro-studio/SKILL.md${RESET}
     ${DIM}~/.claude/scripts/setup-elementor-mcp.sh${RESET}
 
   ${BOLD}Next steps:${RESET}
