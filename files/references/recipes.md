@@ -198,7 +198,12 @@ field borders `border`.
 
 **Variants:** *Pro* — right side = native **Form** widget (see the Forms section).
 *Free* — **Fluent Forms** shortcode/widget (see Forms fallback). Bind submit-button
-color to `brand` either way.
+color to `brand` either way. *Atomic/V4* — the native Pro **Form** widget isn't
+V4-ready (it's a classic island that may not render on an atomic page — see
+[`atomic-v4.md`](atomic-v4.md)), so even on a Pro site drop a **Fluent Forms
+shortcode** via `add-atomic-widget` (a shortcode/HTML atomic type) and wrap the two
+halves in `e-flexbox`. Flag to the user that the Pro Form widget is skipped because it
+isn't V4-ready.
 
 ---
 
@@ -221,8 +226,12 @@ color to `brand` either way.
 **Responsive:** unchanged (already narrow/stacked).
 
 **Variants:** *Free* — Elementor's base Accordion/Toggle is available without Pro.
-*Atomic/V4* — no atomic accordion; keep this section classic (a mixed page is fine),
-or use a div-block + details fallback.
+*Atomic/V4* — there is no atomic accordion, and a classic Accordion/Toggle dropped on
+a V4 page **won't persist** (classic writes don't survive on an atomic page — see
+[`atomic-v4.md`](atomic-v4.md)). Build the accordion the atomic way: one `add-div-block`
+per item wrapping a native `<details>`/`<summary>` (question in `<summary>`, answer in
+the body) via an atomic HTML/shortcode widget. This div-block + `<details>` pattern is
+the **only** V4 path here — do not leave a classic accordion on a V4 page.
 
 ---
 

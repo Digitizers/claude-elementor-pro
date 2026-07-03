@@ -190,7 +190,11 @@ PY
   # Resolve real path + URL from sites.json; fall back to the legacy convention.
   RESOLVED=$(list_local_sites 2>/dev/null | awk -F'\t' -v n="$SITE_NAME" '$1==n{print; exit}')
   if [ -n "$RESOLVED" ]; then
-    SITE_PATH="$(printf "%s" "$RESOLVED" | cut -f2)/app/public"
+    # sites.json may store the path with a leading ~ — expand it, or the
+    # wp-config.php probe below looks for a literal "~/..." dir and aborts.
+    _lp="$(printf "%s" "$RESOLVED" | cut -f2)"
+    case "$_lp" in \~|\~/*) _lp="$HOME${_lp#\~}" ;; esac
+    SITE_PATH="${_lp}/app/public"
     SITE_URL="http://$(printf "%s" "$RESOLVED" | cut -f3)"
   else
     SITE_PATH="$HOME/Local Sites/$SITE_NAME/app/public"
@@ -525,13 +529,61 @@ fi
 # ---- 7. Install MCP plugin ---------------------------------------------------
 step "7/8  Installing MCP plugin"
 
-# Is it already there?
+# The skill requires the Digitizers elementor-mcp FORK, which BUNDLES the MCP
+# Adapter. Older sites ran the upstream pair: a SEPARATE `mcp-adapter` plugin
+# alongside `elementor-mcp`. That pair still registers the generic `mcp`
+# namespace, so "namespace present" alone must NOT short-circuit the install —
+# it would leave the old, unbundled setup in place forever. Detect the old pair
+# (a standalone mcp-adapter plugin, or an elementor-mcp below the fork's floor)
+# and offer to (re)install the bundled fork over it.
+REQUIRED_EMCP_VERSION="1.10.0"   # floor for the bundled Digitizers fork
+
+# Version of the installed elementor-mcp plugin (empty if not installed).
+emcp_installed_version() {
+  echo "$PLUGINS_JSON" | python3 -c "$JQ_LENIENT_PY"'
+import sys
+d = _load(sys.stdin.read())
+if isinstance(d, list):
+    for p in d:
+        if p.get("plugin","").startswith("elementor-mcp/"):
+            print(p.get("version","")); break
+' 2>/dev/null || echo ""
+}
+
+# True (0) when dotted version $1 is strictly lower than $2.
+ver_lt() {
+  [ "$1" = "$2" ] && return 1
+  [ "$(printf '%s\n%s\n' "$1" "$2" | sort -t. -k1,1n -k2,2n -k3,3n | head -1)" = "$1" ]
+}
+
 NS_JSON=$(curl -s -u "$WP_USER:$WP_APP_PWD" --max-time 10 "$SITE_URL/wp-json/" || echo "{}")
 HAS_MCP=$(echo "$NS_JSON" | jq_lenient_contains '.namespaces' 'mcp' 2>/dev/null || echo "no")
+HAS_OLD_ADAPTER=$(plugin_is_installed "mcp-adapter")
+EMCP_VER=$(emcp_installed_version)
 
-if [ "$HAS_MCP" = "yes" ]; then
-  ok "MCP namespace already registered — skipping plugin install."
-else
+NEEDS_UPGRADE="no"
+[ "$HAS_OLD_ADAPTER" = "yes" ] && NEEDS_UPGRADE="yes"
+{ [ -n "$EMCP_VER" ] && ver_lt "$EMCP_VER" "$REQUIRED_EMCP_VERSION"; } && NEEDS_UPGRADE="yes"
+
+SKIP_MCP_INSTALL="no"
+if [ "$HAS_MCP" = "yes" ] && [ "$NEEDS_UPGRADE" = "no" ]; then
+  ok "MCP namespace already registered${EMCP_VER:+ (elementor-mcp $EMCP_VER, bundled fork)} — skipping plugin install."
+  SKIP_MCP_INSTALL="yes"
+elif [ "$HAS_MCP" = "yes" ] && [ "$NEEDS_UPGRADE" = "yes" ]; then
+  warn "An older MCP setup is present — the skill needs the bundled elementor-mcp fork:"
+  [ "$HAS_OLD_ADAPTER" = "yes" ] && info "  • standalone 'MCP Adapter' plugin found — the fork bundles the adapter, so the separate one should be removed"
+  { [ -n "$EMCP_VER" ] && ver_lt "$EMCP_VER" "$REQUIRED_EMCP_VERSION"; } && info "  • elementor-mcp $EMCP_VER is below the required $REQUIRED_EMCP_VERSION"
+  info "  In WP Admin → Plugins, deactivate + delete the old 'MCP Adapter' and 'MCP Tools for Elementor',"
+  info "  then let this step reinstall the bundled fork (the install below uses --force to overwrite)."
+  ask "(Re)install the bundled fork now? [Y/n]"
+  read -r DO_UPGRADE
+  if [[ "$DO_UPGRADE" =~ ^[Nn]$ ]]; then
+    warn "Leaving the existing MCP plugins as-is. Remove the old pair and re-run if the MCP misbehaves."
+    SKIP_MCP_INSTALL="yes"
+  fi
+fi
+
+if [ "$SKIP_MCP_INSTALL" = "no" ]; then
   WORK=$(mktemp -d)
   trap 'rm -rf "$WORK"' EXIT
 
@@ -555,33 +607,64 @@ print(a[0]["browser_download_url"] if a else d.get("zipball_url",""))
   ( cd "$WORK" && rm -f elementor-mcp.zip && zip -qr elementor-mcp.zip elementor-mcp )
   ok "Repacked elementor-mcp.zip with clean folder name"
 
+  MANUAL_UPLOAD="no"
   if [ "$MODE" = "local" ]; then
-    # Local: install via WP-CLI through Local's bundled binaries
+    # Install via WP-CLI through Local's bundled binaries. macOS and Linux store
+    # Local's data dir + app resources under different roots — probe both so a
+    # Linux site resolved from sites.json (see the roots list in step 2) can
+    # install too, instead of aborting on macOS-only paths. If the bundled
+    # toolchain or a live socket can't be found, fall through to manual upload.
     info "Installing via Local's bundled WP-CLI..."
-    LOCAL_PHP=$(find "$HOME/Library/Application Support/Local/lightning-services" -maxdepth 6 -name "php" -type f 2>/dev/null | head -1)
-    LOCAL_WP="/Applications/Local.app/Contents/Resources/extraResources/bin/wp-cli/posix/wp"
-    [ -x "$LOCAL_PHP" ] || abort "Local's PHP binary not found. Is Local installed?"
-    [ -f "$LOCAL_WP"  ] || abort "Local's WP-CLI binary not found at $LOCAL_WP"
 
-    # Find the MySQL socket for this site
-    SOCK=$(find "$HOME/Library/Application Support/Local/run" -name "mysqld.sock" 2>/dev/null | while read s; do
-      # Check which socket actually serves THIS site (only one will be live with the site running)
-      if "$LOCAL_PHP" -d "mysqli.default_socket=$s" -d "pdo_mysql.default_socket=$s" "$LOCAL_WP" --path="$SITE_PATH" --skip-plugins --skip-themes core version >/dev/null 2>&1; then
-        echo "$s"; break
+    LOCAL_DATA_ROOT=""
+    for root in \
+      "$HOME/Library/Application Support/Local" \
+      "$HOME/.config/Local" \
+      "$HOME/.local/share/Local"; do
+      [ -d "$root" ] && { LOCAL_DATA_ROOT="$root"; break; }
+    done
+
+    LOCAL_PHP=""
+    [ -n "$LOCAL_DATA_ROOT" ] && LOCAL_PHP=$(find "$LOCAL_DATA_ROOT/lightning-services" -maxdepth 6 -name "php" -type f 2>/dev/null | head -1)
+
+    LOCAL_WP=""
+    for cand in \
+      "/Applications/Local.app/Contents/Resources/extraResources/bin/wp-cli/posix/wp" \
+      "/opt/Local/resources/extraResources/bin/wp-cli/posix/wp" \
+      "/usr/lib/local-by-flywheel/resources/extraResources/bin/wp-cli/posix/wp"; do
+      [ -f "$cand" ] && { LOCAL_WP="$cand"; break; }
+    done
+    # Last resort: a wp-cli on PATH (still driven by Local's PHP + socket).
+    [ -z "$LOCAL_WP" ] && command -v wp >/dev/null 2>&1 && LOCAL_WP="$(command -v wp)"
+
+    if [ -x "$LOCAL_PHP" ] && [ -n "$LOCAL_WP" ] && [ -d "$LOCAL_DATA_ROOT/run" ]; then
+      # Find the MySQL socket that actually serves THIS site (only the running
+      # site's socket answers `core version`).
+      SOCK=$(find "$LOCAL_DATA_ROOT/run" -name "mysqld.sock" 2>/dev/null | while read s; do
+        if "$LOCAL_PHP" -d "mysqli.default_socket=$s" -d "pdo_mysql.default_socket=$s" "$LOCAL_WP" --path="$SITE_PATH" --skip-plugins --skip-themes core version >/dev/null 2>&1; then
+          echo "$s"; break
+        fi
+      done)
+      if [ -n "$SOCK" ]; then
+        ok "MySQL socket: $SOCK"
+        PHPRUN=( "$LOCAL_PHP" -d "mysqli.default_socket=$SOCK" -d "pdo_mysql.default_socket=$SOCK" )
+        info "Installing elementor-mcp (fork — bundles the MCP Adapter)..."
+        "${PHPRUN[@]}" "$LOCAL_WP" --path="$SITE_PATH" --skip-plugins --skip-themes plugin install "$WORK/elementor-mcp.zip" --activate --force >/dev/null 2>&1 \
+          && ok "elementor-mcp installed + activated" || fail "elementor-mcp install failed"
+      else
+        warn "Could not find a live MySQL socket for $SITE_NAME (is the site started in Local?)."
+        MANUAL_UPLOAD="yes"
       fi
-    done)
-    [ -n "$SOCK" ] || abort "Could not find MySQL socket for $SITE_NAME. Is the site started in Local?"
-    ok "MySQL socket: $SOCK"
+    else
+      warn "Couldn't locate Local's bundled WP-CLI toolchain on this OS."
+      MANUAL_UPLOAD="yes"
+    fi
+  fi
 
-    PHPRUN=( "$LOCAL_PHP" -d "mysqli.default_socket=$SOCK" -d "pdo_mysql.default_socket=$SOCK" )
-
-    info "Installing elementor-mcp (fork — bundles the MCP Adapter)..."
-    "${PHPRUN[@]}" "$LOCAL_WP" --path="$SITE_PATH" --skip-plugins --skip-themes plugin install "$WORK/elementor-mcp.zip" --activate --force >/dev/null 2>&1 \
-      && ok "elementor-mcp installed + activated" || fail "elementor-mcp install failed"
-
-  else
-    # Live host: REST upload not supported for arbitrary zips. Print instructions.
-    warn "Live hosts: REST API can't install arbitrary plugin zips."
+  if [ "$MODE" != "local" ] || [ "$MANUAL_UPLOAD" = "yes" ]; then
+    # Live host — or Local without a usable bundled WP-CLI (e.g. an atypical
+    # Linux install). REST can't push arbitrary plugin zips, so upload by hand.
+    warn "REST API can't install arbitrary plugin zips here — upload it by hand."
     info ""
     info "Zip ready at:"
     info "  $WORK/elementor-mcp.zip"
