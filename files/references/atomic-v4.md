@@ -18,14 +18,20 @@ persist on an atomic page, and atomic writes don't belong on a classic page.
 | Button | `add-button` | `add-atomic-button` |
 | Image | `add-image` | `add-atomic-image` |
 | SVG / video / divider | `add-icon` / `add-html` | `add-atomic-svg` / `add-atomic-youtube` / `add-atomic-video` / `add-atomic-divider` |
-| Anything else | `add-widget` | `add-atomic-widget` *(any atomic type by `$$type`)* / `update-atomic-widget` |
+| Anything else | `add-widget` | `add-atomic-widget` *(any atomic type; pass raw `$$type`-shaped settings — see note)* / `update-atomic-widget` |
 
 ### The atomic data model (what's different)
 
 - **Typed props (`$$type`).** Atomic settings are typed values, not flat strings.
-  The MCP handles this for you — **pass simple flat values** (e.g. `title: "Hello"`,
-  a hex `color`, a `{size,unit}` dimension) and it wraps them into the `$$type`
-  format Elementor's atomic engine stores.
+  For the **dedicated** helper tools (`add-atomic-heading`, `add-atomic-paragraph`,
+  `add-atomic-button`, `add-flexbox`, …) the MCP wraps them for you — **pass simple
+  flat values** (e.g. `title: "Hello"`, a hex `color`, a `{size,unit}` dimension) and
+  it stores them in the `$$type` format Elementor's atomic engine expects.
+  **Exception — the universal `add-atomic-widget` / `update-atomic-widget` escape
+  hatch does NOT wrap for you.** It writes settings verbatim, so it needs values
+  already in raw `$$type` shape; flat values passed there are silently saved as
+  empty/ignored settings. For those two tools, fetch the shape with
+  `get-widget-schema` and build the typed props by hand.
 - **Styles live in a separate `styles` map**, not inline on the element. Layout
   props on `add-flexbox` (direction/justify/align/gap) are written as local styles
   automatically — you don't hand-build the styles map.
