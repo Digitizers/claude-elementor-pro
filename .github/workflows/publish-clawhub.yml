@@ -60,7 +60,7 @@ jobs:
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
         run: |
           if [ "$DRY_RUN" = "true" ]; then
-            echo "Dry run — would publish: clawhub skill publish $SKILL_DIR --slug elementor-pro-studio --name 'Elementor Pro Studio' --version ${{ steps.ver.outputs.version }}"
+            clawhub skill publish "$SKILL_DIR" --slug elementor-pro-studio --name "Elementor Pro Studio" --version "${{ steps.ver.outputs.version }}" --dry-run
             exit 0
           fi
           clawhub skill publish "$SKILL_DIR" --slug elementor-pro-studio --name "Elementor Pro Studio" --version "${{ steps.ver.outputs.version }}"

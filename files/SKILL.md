@@ -1,13 +1,13 @@
 ---
 name: elementor-pro-studio
-version: 1.1.0
+version: 1.1.1
 license: MIT
 description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro (native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion vs free-tier workarounds) AND the page engine (classic vs Elementor 4 atomic/V4 — atomic uses add-flexbox/add-atomic-* tools since classic writes don't persist on a V4 page). Detects ACF + Crocoblock/JetEngine for dynamic-data binding (Tier-0; bind ACF via Pro dynamic tags, place Jet widgets via add-widget with runtime-verified types). Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/elementor-pro-studio`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
 ---
 
 # Elementor Pro Studio Skill
 
-You are operating against a WordPress site with the **elementor-mcp** server (`https://github.com/msrbuilds/elementor-mcp`) connected via the WordPress MCP Adapter. This skill captures everything I learned the hard way the first time through, so subsequent sessions start at expertise level.
+You are operating against a WordPress site with the **elementor-mcp** server (`https://github.com/Digitizers/elementor-mcp` — our fork, Elementor 4.x-correct) connected via the WordPress MCP Adapter. This skill captures everything I learned the hard way the first time through, so subsequent sessions start at expertise level.
 
 ## 🛑 First Action Protocol — ASK BEFORE DOING
 
@@ -368,7 +368,7 @@ If Pro → native Form widget (preferred). If free → Fluent Forms (fallback). 
 - **The application password's *label* is not the username.** A user creates an Application Password and gives it a name like "Claude MCP", but the actual WP username remains `admin` or `test` or whatever they set up. If `curl -u "ClaudeMCP:..."` returns 401, try `curl -u "admin:..."` or check `GET /wp-json/wp/v2/users` to find the real slug.
 - **Local-by-Flywheel `wp-config.php` says `DB_HOST=localhost`** but the real MySQL is on a per-site Unix socket. WP-CLI fails with "Error establishing a database connection" until you pass `-d mysqli.default_socket=/path/to/mysqld.sock`. The setup script handles this; if doing it manually, find the socket via `find ~/Library/Application\ Support/Local/run -name mysqld.sock`.
 - **Neither MCP plugin is on wordpress.org.** Cannot install via REST API by slug — must download zips from GitHub Releases.
-- **The elementor-mcp release zipball has an ugly auto-generated folder name** (`msrbuilds-elementor-mcp-<sha>/`). WordPress uses the folder name as the plugin slug. Repack with a clean `elementor-mcp/` folder before installing.
+- **The elementor-mcp release zipball has an ugly auto-generated folder name** (`Digitizers-elementor-mcp-<sha>/`). WordPress uses the folder name as the plugin slug. Repack with a clean `elementor-mcp/` folder before installing.
 - **Claude Code only loads `.mcp.json` at startup** — after writing one, the user must quit and reopen.
 - **The `detect-elementor-version` tool errored with a schema validation bug** in v1.5.0 (`elementor_pro_version` null vs. schema `string`). Fixed in current builds and useful for the classic-vs-atomic check — but for the plain auth-works smoke test, `list-pages` is still the simplest.
 - **Atomic (V4) tools missing on a V4 site?** Older MCP builds gate atomic-tool registration on `ELEMENTOR_VERSION >= 4.0.0`, but Elementor runs atomic as an experiment while the constant still reads `3.x` — so the tools never register and classic writes silently don't persist. Update the elementor-mcp plugin (the detection now keys off the atomic experiment/module), and on tight tool caps (Antigravity) enable **Low-tools mode** so the 5 atomic essentials stay exposed. See the engine-detection section up top.

@@ -5,7 +5,7 @@
 ![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-purple)
 ![Elementor](https://img.shields.io/badge/Elementor-Pro-92003b)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.1-blue)
 
 Build **WordPress sites with AI** — design with Claude Code, then have Claude build it directly inside your [Elementor](https://digitizer.li/elementor) Free or Pro site. No more rebuilding mockups by hand.
 
@@ -244,7 +244,7 @@ This is the **Elementor Pro edition** — a fork of and built on top of the orig
 
 It also wraps two existing open-source WordPress projects:
 
-- **[elementor-mcp](https://github.com/msrbuilds/elementor-mcp)** by [@msrbuilds](https://github.com/msrbuilds) — the actual MCP server that exposes Elementor to AI agents (GPL-3.0)
+- **[elementor-mcp](https://github.com/Digitizers/elementor-mcp)** — our fork, the MCP server that exposes Elementor to AI agents, kept Elementor 4.x-correct and bundling the MCP Adapter. Based on the original by [@msrbuilds](https://github.com/msrbuilds) (GPL-3.0)
 - **[WordPress MCP Adapter](https://github.com/WordPress/mcp-adapter)** — the WP-side plumbing for any MCP server (GPL-2.0)
 
 Both plugins are GPL-licensed and are downloaded from GitHub Releases by the setup script.
@@ -261,7 +261,8 @@ Open an issue on this repo. Don't promise me you'll wait for an answer, but I re
 
 - **Repository:** https://github.com/Digitizers/claude-elementor-pro
 - **OpenClaw:** https://openclaw.ai
-- **Elementor MCP server:** https://github.com/msrbuilds/elementor-mcp
+- **Elementor MCP server (our fork):** https://github.com/Digitizers/elementor-mcp
+- **Original elementor-mcp (credit: @msrbuilds):** https://github.com/msrbuilds/elementor-mcp
 - **Digitizer:** https://www.digitizer.studio
 
 ---
