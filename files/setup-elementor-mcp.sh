@@ -898,7 +898,7 @@ cat <<EOF
   ${BOLD}What can you do now?${RESET}
 
   Claude can ${BOLD}build${RESET}, ${BOLD}edit${RESET}, ${BOLD}reference${RESET}, or ${BOLD}explore${RESET} your Elementor site.
-  Type ${CYAN}/elementor-mcp${RESET} or ask in plain words. Examples:
+  Type ${CYAN}/elementor-pro-studio${RESET} or ask in plain words. Examples:
 
   ${BOLD}🏗  Build${RESET} — create new pages or sections from a design
     ${DIM}"Build me a homepage based on this HTML mockup"${RESET}

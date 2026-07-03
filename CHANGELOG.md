@@ -5,6 +5,12 @@ All notable changes to the claude-elementor-pro skill kit are documented here.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.1.1 — 2026-06-13
+
+- Point all operational references at our fork `Digitizers/elementor-mcp` (the Elementor 4.x-correct engine the skill drives); msrbuilds/elementor-mcp is retained as end-credit attribution only.
+- Fix the post-install prompt to say `/elementor-pro-studio` (was still `/elementor-mcp`).
+- `publish-clawhub.yml` dry-run now calls the real `clawhub skill publish --dry-run` (confirmed a genuine CLI flag) instead of just echoing the command.
+
 ## 1.1.0 — 2026-06-12
 
 - Renamed the skill's invocation name to `elementor-pro-studio` (OpenClaw-neutral) and published to ClawHub under "Elementor Pro Studio". The GitHub repo remains `claude-elementor-pro`.

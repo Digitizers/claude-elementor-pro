@@ -16,13 +16,13 @@ When you create a WordPress Application Password, you give it a memorable name l
 
 ### 2. Neither MCP plugin is on wordpress.org
 
-Both `mcp-adapter` (WordPress org) and `elementor-mcp` (msrbuilds) ship only via GitHub. The WP REST API's `/wp-json/wp/v2/plugins` endpoint can install plugins by *slug* (from wp.org) but cannot install from arbitrary zip URLs.
+Both `mcp-adapter` (WordPress org) and `elementor-mcp` (our fork, `Digitizers/elementor-mcp` — a fork of `msrbuilds/elementor-mcp`) ship only via GitHub. The WP REST API's `/wp-json/wp/v2/plugins` endpoint can install plugins by *slug* (from wp.org) but cannot install from arbitrary zip URLs.
 
 **Workaround:** Download zips from GitHub Releases and install via WP-CLI (Local) or upload via WP Admin (live).
 
 ### 3. The elementor-mcp source zipball has a hash-suffixed folder
 
-GitHub's auto-generated source zipballs (used when a release has no asset zip) wrap the code in a directory like `msrbuilds-elementor-mcp-b466a1a/`. WordPress uses this folder as the plugin slug — leading to a confused activation and broken paths.
+GitHub's auto-generated source zipballs (used when a release has no asset zip) wrap the code in a directory like `Digitizers-elementor-mcp-<sha>/`. WordPress uses this folder as the plugin slug — leading to a confused activation and broken paths.
 
 **Fix:** Unzip, rename the folder to `elementor-mcp/`, re-zip. The setup script does this automatically.
 
@@ -243,7 +243,7 @@ hand-write a small CSS snippet via Customizer → Additional CSS.
 
 ## Reading list (what helped me get this right)
 
-- [elementor-mcp source](https://github.com/msrbuilds/elementor-mcp) — `includes/abilities/class-*-abilities.php` files are the ground truth on each tool's behavior
+- [elementor-mcp source](https://github.com/Digitizers/elementor-mcp) (fork of [msrbuilds/elementor-mcp](https://github.com/msrbuilds/elementor-mcp)) — `includes/abilities/class-*-abilities.php` files are the ground truth on each tool's behavior
 - [WordPress MCP Adapter](https://github.com/WordPress/mcp-adapter) — explains the JSON-RPC plumbing and auth options
 - [Elementor's `_elementor_data` post meta format](https://developers.elementor.com/docs/getting-started/elementor-data/) — every page is one giant nested JSON tree in this meta key. The MCP reads/writes this directly.
 - The [container schema dump](#) — `get-container-schema()` returns ~50KB of JSON Schema. Read once at session start; bookmark the keys.
