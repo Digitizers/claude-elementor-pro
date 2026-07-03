@@ -46,7 +46,7 @@ if (-not (Test-Path (Join-Path $SrcFiles "setup-elementor-mcp.sh"))) {
 
 Write-Step "Creating destination folders"
 $ClaudeDir  = Join-Path $HOME ".claude"
-$SkillDir   = Join-Path $ClaudeDir "skills\elementor-mcp"
+$SkillDir   = Join-Path $ClaudeDir "skills\elementor-pro-studio"
 $ScriptDir  = Join-Path $ClaudeDir "scripts"
 
 New-Item -ItemType Directory -Force -Path $SkillDir  | Out-Null
@@ -54,6 +54,20 @@ New-Item -ItemType Directory -Force -Path $ScriptDir | Out-Null
 
 Write-Ok $SkillDir
 Write-Ok $ScriptDir
+
+# The skill was previously installed as "elementor-mcp" -- migrate/remove that
+# old directory so Claude doesn't end up loading both.
+$OldSkillDir = Join-Path $ClaudeDir "skills\elementor-mcp"
+if (Test-Path $OldSkillDir) {
+    Write-Warn "Found a previous install at $OldSkillDir (this kit's old skill name)."
+    $ans = Read-Host "    Remove it now that the skill installs as elementor-pro-studio? [y/N]"
+    if ($ans -match '^[Yy]$') {
+        Remove-Item -Recurse -Force $OldSkillDir
+        Write-Ok "Removed old $OldSkillDir"
+    } else {
+        Write-Warn "Leaving $OldSkillDir in place -- remove it manually to avoid Claude loading both the old and new skill."
+    }
+}
 
 Write-Step "Copying files"
 
@@ -103,7 +117,7 @@ Write-Host @"
   [OK] Install complete
 
   Files installed at:
-    ~/.claude/skills/elementor-mcp/SKILL.md
+    ~/.claude/skills/elementor-pro-studio/SKILL.md
     ~/.claude/scripts/setup-elementor-mcp.sh
 
   IMPORTANT FOR WINDOWS USERS:

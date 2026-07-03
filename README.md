@@ -5,13 +5,15 @@
 ![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-purple)
 ![Elementor](https://img.shields.io/badge/Elementor-Pro-92003b)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/version-1.0.1-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 
 Build **WordPress sites with AI** — design with Claude Code, then have Claude build it directly inside your [Elementor](https://digitizer.li/elementor) Free or Pro site. No more rebuilding mockups by hand.
 
 A **Claude Code & OpenClaw skill** that teaches Claude to build directly inside Elementor. Not just a mockup tool — Claude places real sections, widgets, colors, and typography into your live Elementor site, with Pro/free auto-detection and a widget-vs-HTML discipline.
 
 > **The short version:** This kit teaches Claude (Anthropic's AI) how to talk to your WordPress site through the Elementor MCP server. You design pages in Claude Code, then Claude places sections, widgets, colors, and typography directly into Elementor for you. Works on local sites (Local-by-Flywheel) and live hosts.
+>
+> **Naming note:** the GitHub repo is `claude-elementor-pro`, but the skill itself installs and invokes as **`elementor-pro-studio`** (published on [ClawHub](https://clawhub.ai) under **"Elementor Pro Studio"** — OpenClaw-neutral branding). Same kit, same repo — just a repo-independent skill name.
 
 ---
 
@@ -106,7 +108,7 @@ You **don't install these yourself.** The setup wizard downloads them from GitHu
 
 The two files in this repo's `files/` folder get copied to:
 
-- `~/.claude/skills/elementor-mcp/SKILL.md` — the cheat sheet Claude reads each session
+- `~/.claude/skills/elementor-pro-studio/SKILL.md` — the cheat sheet Claude reads each session
 - `~/.claude/scripts/setup-elementor-mcp.sh` — the wizard you run per WordPress site
 
 > 📋 **Want a one-page reference of every file/plugin the kit touches?** See [`docs/WHATS_INSTALLED.md`](docs/WHATS_INSTALLED.md).
@@ -135,7 +137,7 @@ bash INSTALL.sh
 ```
 
 The installer copies two files into your `~/.claude/` folder:
-- `~/.claude/skills/elementor-mcp/SKILL.md`
+- `~/.claude/skills/elementor-pro-studio/SKILL.md`
 - `~/.claude/scripts/setup-elementor-mcp.sh`
 
 Safe to re-run — it'll ask before overwriting existing files.

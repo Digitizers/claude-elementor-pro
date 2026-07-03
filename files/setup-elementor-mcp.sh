@@ -917,12 +917,12 @@ cat <<EOF
 
   ${BOLD}🧭  Explore${RESET} — figure out what's possible
     ${DIM}"What can you do with my Elementor site?"${RESET}
-    ${DIM}"/elementor-mcp"  (Claude will ask which mode you want)${RESET}
+    ${DIM}"/elementor-pro-studio"  (Claude will ask which mode you want)${RESET}
 
   ${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}
 
   ${BOLD}Reference:${RESET}
-    Skill file: ~/.claude/skills/elementor-mcp/SKILL.md
+    Skill file: ~/.claude/skills/elementor-pro-studio/SKILL.md
     MCP plugin: https://github.com/Digitizers/elementor-mcp
 
 EOF

@@ -5,6 +5,11 @@ All notable changes to the claude-elementor-pro skill kit are documented here.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.1.0 — 2026-06-12
+
+- Renamed the skill's invocation name to `elementor-pro-studio` (OpenClaw-neutral) and published to ClawHub under "Elementor Pro Studio". The GitHub repo remains `claude-elementor-pro`.
+- Added a ClawHub publish workflow.
+
 ## [1.0.1] - 2026-07-03
 
 Addresses Codex review findings across the installers and reference docs.

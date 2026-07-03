@@ -94,7 +94,7 @@ Just describe what you want. Examples:
 - *"Add a contact form section with a Fluent Forms shortcode"*
 - *"Show me the structure of page ID 11 and tell me what's wrong with the spacing"*
 
-Claude will auto-load the **`elementor-mcp` skill** (at `~/.claude/skills/elementor-mcp/SKILL.md`), which encodes all the conventions:
+Claude will auto-load the **`elementor-pro-studio` skill** (at `~/.claude/skills/elementor-pro-studio/SKILL.md`), which encodes all the conventions:
 
 - Flat parameter shape (don't wrap in `settings: {}`)
 - `flex_direction` / `flex_justify_content` / `flex_align_items` key names
@@ -110,7 +110,7 @@ Claude will auto-load the **`elementor-mcp` skill** (at `~/.claude/skills/elemen
 ```
 ~/.claude/
 ├── skills/
-│   └── elementor-mcp/
+│   └── elementor-pro-studio/
 │       └── SKILL.md              ← Tells Claude how to use the MCP correctly
 └── scripts/
     └── setup-elementor-mcp.sh    ← One-time setup wizard

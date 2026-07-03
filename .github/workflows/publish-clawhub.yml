@@ -1,0 +1,66 @@
+name: Publish to ClawHub
+
+# Publishes the skill payload (files/) to ClawHub under the slug
+# "elementor-pro-studio" (display name "Elementor Pro Studio").
+# Dormant until the repo is public and a CLAWHUB_TOKEN repo/org secret is set.
+#
+# Triggers:
+#   - on a published GitHub Release  → real publish
+#   - manual run (workflow_dispatch) → choose dry-run or real publish
+#
+# The version is read from the skill's SKILL.md front matter (`version:`).
+# Note: this repo stays "claude-elementor-pro" — only the published skill
+# slug/name are OpenClaw-neutral ("elementor-pro-studio" / "Elementor Pro Studio").
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build the publish plan without uploading"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clawhub-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish skill
+    runs-on: ubuntu-latest
+    env:
+      SKILL_DIR: files
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install ClawHub CLI
+        run: npm i -g clawhub
+      - name: Read skill version from SKILL.md
+        id: ver
+        run: |
+          VERSION=$(grep -m1 '^version:' "$SKILL_DIR/SKILL.md" | sed 's/^version:[[:space:]]*//' | tr -d '"' | tr -d "'" | xargs)
+          [ -n "$VERSION" ] || { echo "::error::no version in $SKILL_DIR/SKILL.md"; exit 1; }
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Skill version: $VERSION"
+      - name: Authenticate
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          [ -n "$CLAWHUB_TOKEN" ] || { echo "::error::CLAWHUB_TOKEN secret not set"; exit 1; }
+          clawhub login --token "$CLAWHUB_TOKEN"
+      - name: Publish
+        env:
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run — would publish: clawhub skill publish $SKILL_DIR --slug elementor-pro-studio --name 'Elementor Pro Studio' --version ${{ steps.ver.outputs.version }}"
+            exit 0
+          fi
+          clawhub skill publish "$SKILL_DIR" --slug elementor-pro-studio --name "Elementor Pro Studio" --version "${{ steps.ver.outputs.version }}"

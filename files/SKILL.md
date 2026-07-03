@@ -1,11 +1,11 @@
 ---
-name: elementor-mcp
-version: 1.0.1
+name: elementor-pro-studio
+version: 1.1.0
 license: MIT
-description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro (native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion vs free-tier workarounds) AND the page engine (classic vs Elementor 4 atomic/V4 — atomic uses add-flexbox/add-atomic-* tools since classic writes don't persist on a V4 page). Detects ACF + Crocoblock/JetEngine for dynamic-data binding (Tier-0; bind ACF via Pro dynamic tags, place Jet widgets via add-widget with runtime-verified types). Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/elementor-mcp`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
+description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro (native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion vs free-tier workarounds) AND the page engine (classic vs Elementor 4 atomic/V4 — atomic uses add-flexbox/add-atomic-* tools since classic writes don't persist on a V4 page). Detects ACF + Crocoblock/JetEngine for dynamic-data binding (Tier-0; bind ACF via Pro dynamic tags, place Jet widgets via add-widget with runtime-verified types). Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/elementor-pro-studio`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
 ---
 
-# Elementor MCP Skill
+# Elementor Pro Studio Skill
 
 You are operating against a WordPress site with the **elementor-mcp** server (`https://github.com/msrbuilds/elementor-mcp`) connected via the WordPress MCP Adapter. This skill captures everything I learned the hard way the first time through, so subsequent sessions start at expertise level.
 
@@ -15,7 +15,7 @@ You are operating against a WordPress site with the **elementor-mcp** server (`h
 
 If the user's invocation message *already* contains a clear task — *"build me a hero section from `index.html`"*, *"show me my current global colors"*, *"change the burgundy to navy"* — proceed with that task directly.
 
-Otherwise *(invocations like `/elementor-mcp` alone, or "use the Elementor MCP" with no follow-up)*, **respond with this menu and wait for the user to pick:**
+Otherwise *(invocations like `/elementor-pro-studio` alone, or "use the Elementor MCP" with no follow-up)*, **respond with this menu and wait for the user to pick:**
 
 ```
 What would you like to do with your Elementor site?
@@ -39,7 +39,7 @@ That's it for unprompted tool calls. **Anything that creates, modifies, or delet
 
 ## When this skill applies
 
-- The user mentions Elementor MCP, types `/elementor-mcp`, or says "use the Elementor MCP"
+- The user mentions Elementor MCP, types `/elementor-pro-studio`, or says "use the Elementor MCP"
 - A `.mcp.json` in the project registers an MCP server pointing at `wp-json/mcp/elementor-mcp-server`
 - The user asks to build, edit, inspect, or troubleshoot an Elementor page
 - Tools beginning with `mcp__elementor__elementor-mcp-*` are available
@@ -307,7 +307,7 @@ them.
 
 **Vertical routing:** if the client matches a known vertical, load its pack first for voice + design system + section flow: `references/verticals/{dental,salon,car-wash,local-business,portfolio}.md`. No match → proceed with the studio voice default + the recipe library.
 
-> Use this section only when the user has explicitly asked you to build something. Do not run this flow on a bare `/elementor-mcp` invocation.
+> Use this section only when the user has explicitly asked you to build something. Do not run this flow on a bare `/elementor-pro-studio` invocation.
 
 For a new page, build top-down section by section, in small commits, verifying after each:
 
@@ -423,7 +423,7 @@ This skill is one stage of the studio toolbox (audit → build → content → h
 
 ## Quick reference — the build flow that works *(mode 1 only)*
 
-> Use this flow only after the user has explicitly chosen "Build" or asked to build a new site/page. Do **not** run this flow as a default response to `/elementor-mcp` — see the First Action Protocol at the top.
+> Use this flow only after the user has explicitly chosen "Build" or asked to build a new site/page. Do **not** run this flow as a default response to `/elementor-pro-studio` — see the First Action Protocol at the top.
 
 ```
 1. setup-elementor-mcp.sh          # one-time, ~3 minutes
