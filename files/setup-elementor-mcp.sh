@@ -889,6 +889,15 @@ if [ "${SKIP_WRITE:-0}" != "1" ]; then
   # user:app-password). If we're inside a git repo, make sure it can't be
   # accidentally committed: ignore it unless it's already ignored.
   if git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    # If .mcp.json is already TRACKED (committed in an earlier run), a .gitignore
+    # rule does NOT protect it — git keeps reporting the credential file. Untrack
+    # it from the index first so the ignore rule can take effect.
+    if git -C "$PROJECT_DIR" ls-files --error-unmatch .mcp.json >/dev/null 2>&1; then
+      if git -C "$PROJECT_DIR" rm --cached -q .mcp.json 2>/dev/null; then
+        warn ".mcp.json was tracked by git — removed it from the index (commit this removal)."
+        info "  • It may still live in earlier commits; if it was ever pushed, rotate the Application Password."
+      fi
+    fi
     if git -C "$PROJECT_DIR" check-ignore -q .mcp.json 2>/dev/null; then
       info ".mcp.json is already git-ignored — good."
     else
