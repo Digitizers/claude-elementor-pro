@@ -5,6 +5,16 @@ All notable changes to the claude-elementor-pro skill kit are documented here.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.1.2 — 2026-06-14
+
+Security hardening (ClawHub audit — elementor-pro-studio 1.1.1):
+- Read the WordPress application password silently (`read -rs`) so it no longer echoes to the terminal.
+- Removed the username-enumeration fallback on auth failure (generic error instead).
+- Declared the skill's shell/network/filesystem/env permissions in SKILL.md; noted shell/setup runs only on explicit confirmation.
+- `.mcp.json` credential file is now git-ignored on write with a rotation/least-privilege warning.
+- Framed companion tooling (content/SEO/media/ACF/Woo) as optional, opt-in, separately-credentialed.
+- Added an optional `EMCP_PIN_VERSION` to pin the plugin release (default remains latest from the trusted Digitizers fork over HTTPS).
+
 ## 1.1.1 — 2026-06-13
 
 - Point all operational references at our fork `Digitizers/elementor-mcp` (the Elementor 4.x-correct engine the skill drives); msrbuilds/elementor-mcp is retained as end-credit attribution only.
