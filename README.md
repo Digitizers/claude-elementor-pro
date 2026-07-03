@@ -13,7 +13,7 @@ A **Claude Code & OpenClaw skill** that teaches Claude to build directly inside 
 
 > **The short version:** This kit teaches Claude (Anthropic's AI) how to talk to your WordPress site through the Elementor MCP server. You design pages in Claude Code, then Claude places sections, widgets, colors, and typography directly into Elementor for you. Works on local sites (Local-by-Flywheel) and live hosts.
 >
-> **Naming note:** the GitHub repo is `claude-elementor-pro`, but the skill itself installs and invokes as **`elementor-pro-studio`** (published on [ClawHub](https://clawhub.ai) under **"Elementor Pro Studio"** — OpenClaw-neutral branding). Same kit, same repo — just a repo-independent skill name.
+> **Naming note:** the GitHub repo is `claude-elementor-pro`, but the skill itself installs and invokes as **`elementor-pro-studio`** (published on [ClawHub](https://clawhub.ai/benkalsky/skills/elementor-pro-studio) under **"Elementor Pro Studio"** — OpenClaw-neutral branding). Same kit, same repo — just a repo-independent skill name.
 
 ---
 
