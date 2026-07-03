@@ -15,6 +15,18 @@ A **Claude Code & OpenClaw skill** that teaches Claude to build directly inside 
 
 ---
 
+## Part of the Aura Design Engine
+
+These are the free skills behind [**Aura**](https://my-aura.app) — one AI web-agency lifecycle you can run standalone or orchestrate across a whole client fleet from a single dashboard.
+
+| Stage | Skill | Role |
+| --- | --- | --- |
+| 🎨 Build | [**claude-elementor-pro** ← you are here](https://github.com/Digitizers/claude-elementor-pro) | Design & build sites inside Elementor |
+| 🔎 Audit + Content | [wordpress-api-pro](https://github.com/Digitizers/wordpress-api-pro) | REST content ops, SEO & site audits |
+| 🖥 Host | [cloudways-mcp](https://github.com/Digitizers/cloudways-mcp) · [hostinger-mcp](https://github.com/Digitizers/hostinger-mcp) | Provision & operate the infrastructure |
+
+**→ Orchestrate all of it across your client fleet with [Aura](https://my-aura.app)** — governed agent ops with approvals and a full audit trail on top of these skills.
+
 ## What's inside
 
 ```
