@@ -1,8 +1,19 @@
 ---
 name: elementor-pro-studio
-version: 1.1.1
+version: 1.1.2
 license: MIT
 description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro (native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion vs free-tier workarounds) AND the page engine (classic vs Elementor 4 atomic/V4 — atomic uses add-flexbox/add-atomic-* tools since classic writes don't persist on a V4 page). Detects ACF + Crocoblock/JetEngine for dynamic-data binding (Tier-0; bind ACF via Pro dynamic tags, place Jet widgets via add-widget with runtime-verified types). Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/elementor-pro-studio`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
+permissions:
+  shell: "Runs the bundled setup script (files/setup-elementor-mcp.sh) — only on explicit user confirmation. It shells out to curl/unzip/zip/python3 and, for Local sites, drives Local by Flywheel's bundled WP-CLI (plugin install/activate) against the running site's PHP + MySQL socket."
+  network:
+    - "GitHub release download over HTTPS from the trusted Digitizers/elementor-mcp repo (api.github.com + release asset host) — the elementor-mcp plugin zip; unpinned (latest) by default, pin with EMCP_PIN_VERSION"
+    - "The target WordPress site's REST API (/wp-json/ — auth check, plugin list/install, MCP route verification) over the site's own scheme (Local http:// or live https://)"
+  filesystem:
+    - "Writes .mcp.json in the current working directory (embeds a reusable Basic-Auth WordPress credential) and appends .mcp.json to .gitignore there"
+    - "Reads Local by Flywheel site paths + bundled WP-CLI/PHP binaries; creates a temp working dir for the plugin zip"
+  env:
+    - "WP_URL / WP_USERNAME / WP_APP_PASSWORD (when used to supply the target site + Application Password auth)"
+    - "EMCP_PIN_VERSION (optional — pin the elementor-mcp release tag instead of latest)"
 ---
 
 # Elementor Pro Studio Skill
@@ -12,6 +23,8 @@ You are operating against a WordPress site with the **elementor-mcp** server (`h
 ## 🛑 First Action Protocol — ASK BEFORE DOING
 
 **When this skill is invoked, do not start running tools. Ask the user what they want first.**
+
+> **Shell / setup actions run only on explicit user confirmation.** The bundled `setup-elementor-mcp.sh` (which shells out, runs Local's WP-CLI, downloads the plugin, and writes a credentialed `.mcp.json`) is never run automatically — offer it and wait for the user to say yes.
 
 If the user's invocation message *already* contains a clear task — *"build me a hero section from `index.html`"*, *"show me my current global colors"*, *"change the burgundy to navy"* — proceed with that task directly.
 
@@ -400,13 +413,15 @@ Use `ToolSearch` query format `select:tool1,tool2,tool3` to load multiple in one
 
 **Pro features are NOT a limitation when Pro is active** — Form widget, Theme Builder, Loop Grid, Popups, Dynamic Tags, and Sticky/Motion are all driven natively (see the Pro sections above). They're only unavailable on the Free tier, where the documented workarounds apply.
 
-## Companion tooling — `wordpress-api-pro` (content/SEO/commerce ops)
+## Optional companion tooling — `wordpress-api-pro` (content/SEO/commerce ops)
 
-The Elementor MCP is for **building and editing page structure** (containers, widgets, Pro widgets). It does **not** cover bulk content ops, media-library uploads, SEO metadata, custom fields, or WooCommerce. For those, a sibling toolkit — **[`wordpress-api-pro`](https://github.com/Digitizers/wordpress-api-pro)** (Python REST scripts, App-Password auth) — fills the gaps. Same auth model (WordPress Application Password), so it works against the very same site.
+> **These are separate, opt-in tools — not a capability of this skill.** This skill drives the Elementor MCP only. The companion toolkit below is a *different* project with its **own credentials and permissions**, and you should reach for it **only when the user explicitly asks** for one of the content/SEO/media/ACF/WooCommerce tasks it covers. Do not silently invoke it, and do not treat its abilities as automatically available here.
+
+The Elementor MCP is for **building and editing page structure** (containers, widgets, Pro widgets). It does **not** cover bulk content ops, media-library uploads, SEO metadata, custom fields, or WooCommerce. When the user asks for one of those, a sibling toolkit — **[`wordpress-api-pro`](https://github.com/Digitizers/wordpress-api-pro)** (Python REST scripts, App-Password auth) — fills the gaps. It authenticates with **its own environment-based credentials** (`WP_URL` / `WP_USERNAME` / `WP_APP_PASSWORD`), separate from this skill's `.mcp.json`, though it can target the same site.
 
 This skill is one stage of the studio toolbox (audit → build → content → host → ads). **Full handoffs + a "where am I" router → load `references/lifecycle.md`.**
 
-**Reach for `wordpress-api-pro` instead of the MCP when the task is:**
+**When the user explicitly asks for one of these, `wordpress-api-pro` is the right tool instead of the MCP:**
 
 | Task | Script |
 |---|---|

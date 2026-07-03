@@ -235,8 +235,11 @@ EOF
 
 ask "WordPress username (your login, NOT the app-password label):"
 read -r WP_USER
-ask "Application password (24 chars with spaces is OK):"
-read -r WP_APP_PWD
+# Read the application password silently — it's a reusable secret, so it must
+# NOT be echoed to the terminal (or captured in scrollback / screen shares).
+ask "Application password (24 chars with spaces is OK — input hidden):"
+read -rs WP_APP_PWD
+printf '\n'
 
 # Verify via /users/me
 USERS_ME=$(curl -s -u "$WP_USER:$WP_APP_PWD" --max-time 10 "$SITE_URL/wp-json/wp/v2/users/me" || echo "{}")
@@ -245,16 +248,13 @@ if [ -n "$USER_ID" ] && [ "$USER_ID" != "" ]; then
   USER_NAME=$(echo "$USERS_ME" | jq_lenient '.name')
   ok "Authenticated as: $USER_NAME"
 else
-  fail "Auth failed. Listing public users to help find the right slug:"
-  USERS_LIST=$(curl -s --max-time 10 "$SITE_URL/wp-json/wp/v2/users?per_page=10" 2>/dev/null || echo "[]")
-  echo "$USERS_LIST" | python3 -c "$JQ_LENIENT_PY"'
-import sys
-data = _load(sys.stdin.read())
-if isinstance(data, list):
-    for u in data:
-        print(f"     • {u.get(\"slug\",\"?\")} — {u.get(\"name\",\"?\")}")
-' 2>/dev/null || warn "Could not list users."
-  abort "Re-run with the correct username (try a slug from the list above)."
+  # Deliberately do NOT enumerate/print the site's public user list here — that
+  # would leak valid usernames (username enumeration) to anyone running setup.
+  fail "Authentication failed."
+  info "Verify your login username in ${SITE_URL}/wp-admin (Users → Profile — it's"
+  info "your WP username, not the Application Password's label) and that the"
+  info "Application Password was copied exactly (spaces are fine), then re-run."
+  abort "Re-run with the correct username + application password."
 fi
 
 # ---- 5. Plugin baseline + optional auto-install ------------------------------
@@ -675,15 +675,27 @@ if [ "$SKIP_MCP_INSTALL" = "no" ]; then
   WORK=$(mktemp -d)
   trap 'rm -rf "$WORK"' EXIT
 
-  info "Downloading the elementor-mcp fork (bundles the MCP Adapter, latest GitHub release)..."
-  EM_ZIPBALL=$(curl -s "https://api.github.com/repos/Digitizers/elementor-mcp/releases/latest" \
+  # The plugin is fetched from the trusted Digitizers/elementor-mcp repo over
+  # HTTPS. By default we pull `releases/latest` (unpinned) so re-runs pick up
+  # security fixes and the auto-update floor ($REQUIRED_EMCP_VERSION) stays met.
+  # Security-conscious users can pin an exact release tag by exporting
+  # EMCP_PIN_VERSION (e.g. EMCP_PIN_VERSION=v1.10.0) before running this script.
+  EMCP_PIN_VERSION="${EMCP_PIN_VERSION:-}"
+  if [ -n "$EMCP_PIN_VERSION" ]; then
+    EM_RELEASE_API="https://api.github.com/repos/Digitizers/elementor-mcp/releases/tags/${EMCP_PIN_VERSION}"
+    info "Downloading the elementor-mcp fork — pinned to ${EMCP_PIN_VERSION} (trusted Digitizers repo, HTTPS)..."
+  else
+    EM_RELEASE_API="https://api.github.com/repos/Digitizers/elementor-mcp/releases/latest"
+    info "Downloading the elementor-mcp fork (bundles the MCP Adapter, latest release from the trusted Digitizers repo over HTTPS; set EMCP_PIN_VERSION to pin a tag)..."
+  fi
+  EM_ZIPBALL=$(curl -s "$EM_RELEASE_API" \
     | python3 -c "$JQ_LENIENT_PY"'
 import sys
 d = _load(sys.stdin.read())
 a = [a for a in d.get("assets",[]) if a["name"].endswith(".zip")]
 print(a[0]["browser_download_url"] if a else d.get("zipball_url",""))
 ')
-  [ -n "$EM_ZIPBALL" ] || abort "Could not fetch elementor-mcp download URL."
+  [ -n "$EM_ZIPBALL" ] || abort "Could not fetch elementor-mcp download URL.${EMCP_PIN_VERSION:+ Check that EMCP_PIN_VERSION=$EMCP_PIN_VERSION is a real release tag.}"
   curl -sL -o "$WORK/elementor-mcp-src.zip" "$EM_ZIPBALL" || abort "elementor-mcp download failed."
 
   # Repack with clean folder name (zipballs have ugly hash-suffixed dirs)
@@ -872,10 +884,41 @@ JSON
 if [ "${SKIP_WRITE:-0}" != "1" ]; then
   printf "%s\n" "$NEW_CONFIG" > "$MCP_FILE"
   ok "Wrote $MCP_FILE"
+
+  # .mcp.json embeds a reusable Basic-Auth credential (base64 of
+  # user:app-password). If we're inside a git repo, make sure it can't be
+  # accidentally committed: ignore it unless it's already ignored.
+  if git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    # If .mcp.json is already TRACKED (committed in an earlier run), a .gitignore
+    # rule does NOT protect it — git keeps reporting the credential file. Untrack
+    # it from the index first so the ignore rule can take effect.
+    if git -C "$PROJECT_DIR" ls-files --error-unmatch .mcp.json >/dev/null 2>&1; then
+      if git -C "$PROJECT_DIR" rm --cached -q .mcp.json 2>/dev/null; then
+        warn ".mcp.json was tracked by git — removed it from the index (commit this removal)."
+        info "  • It may still live in earlier commits; if it was ever pushed, rotate the Application Password."
+      fi
+    fi
+    if git -C "$PROJECT_DIR" check-ignore -q .mcp.json 2>/dev/null; then
+      info ".mcp.json is already git-ignored — good."
+    else
+      GITIGNORE="$PROJECT_DIR/.gitignore"
+      { [ -f "$GITIGNORE" ] && [ -s "$GITIGNORE" ] && [ -z "$(tail -c1 "$GITIGNORE")" ]; } || printf '\n' >> "$GITIGNORE"
+      printf '# Contains reusable WordPress credentials — keep out of version control\n.mcp.json\n' >> "$GITIGNORE"
+      ok "Added .mcp.json to $GITIGNORE so it won't be committed."
+    fi
+  fi
+
+  warn "SECURITY: $MCP_FILE holds a reusable WordPress credential (Basic auth)."
+  info "  • Keep it out of version control and off shared machines."
+  info "  • Use a least-privileged Application Password (only the role you need)."
+  info "  • Rotate/revoke that Application Password after setup or client handoff"
+  info "    (WP Admin → Users → Profile → Application Passwords → Revoke)."
 else
   echo
   info "Suggested config:"
   echo "$NEW_CONFIG" | sed 's/^/      /'
+  warn "SECURITY: this config embeds a reusable WordPress credential — keep it"
+  info "  out of version control and rotate/revoke the Application Password after use."
 fi
 
 # ---- final instructions ------------------------------------------------------
