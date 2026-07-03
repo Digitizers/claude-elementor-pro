@@ -30,6 +30,14 @@ Addresses Codex review findings across the installers and reference docs.
   generic `mcp` namespace is present. It now detects the old `mcp-adapter` +
   upstream `elementor-mcp` pair (standalone adapter plugin, or a pre-fork version)
   and offers to (re)install the bundled Digitizers fork over it.
+- **`setup-elementor-mcp.sh` (P1, Codex follow-up):** accepting that (re)install no
+  longer just warns and installs the fork on top of the old setup. A new
+  `remove_plugin` helper deactivates + deletes the standalone `mcp-adapter` plugin
+  via REST and re-verifies (via `refresh_plugins_json` + `plugin_is_installed`) that
+  it's actually gone before the fork install proceeds. If REST removal fails, the
+  script pauses in a recheck loop (or aborts on request) instead of ever installing
+  the bundled fork alongside the still-present standalone adapter — which would
+  double-load the MCP transport and break the route.
 - **`references/recipes.md` Contact (MED):** added an `*Atomic/V4*` variant — a
   Fluent Forms shortcode dropped via `add-atomic-widget`, flagging that the native Pro
   Form widget isn't V4-ready.

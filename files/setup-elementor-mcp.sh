@@ -381,6 +381,60 @@ if isinstance(d, list):
   return 1
 }
 
+# Helper: fully remove a plugin (deactivate, then delete) via REST, by slug.
+# Used to clear out an old standalone plugin BEFORE installing something that
+# bundles/replaces it — e.g. the standalone `mcp-adapter` plugin once the
+# elementor-mcp fork bundles its own copy. Leaving both loaded double-registers
+# the MCP transport and breaks the route, so this must fully succeed (verified
+# via refresh_plugins_json + plugin_is_installed) before the caller proceeds.
+# Returns 0 only if the plugin is confirmed GONE afterward.
+remove_plugin() {
+  local slug="$1"
+  local label="$2"
+
+  if [ "$(plugin_is_installed "$slug")" != "yes" ]; then
+    ok "$label not installed — nothing to remove"
+    return 0
+  fi
+
+  local plugin_path
+  plugin_path=$(echo "$PLUGINS_JSON" | python3 -c "$JQ_LENIENT_PY"'
+import sys
+slug = sys.argv[1]
+d = _load(sys.stdin.read())
+if isinstance(d, list):
+    for p in d:
+        if p.get("plugin","").startswith(slug+"/"):
+            print(p["plugin"]); break
+' "$slug" 2>/dev/null)
+
+  if [ -z "$plugin_path" ]; then
+    fail "Could not resolve plugin path for $label ($slug) — cannot remove via REST"
+    return 1
+  fi
+
+  if [ "$(plugin_is_active "$slug")" = "yes" ]; then
+    info "Deactivating $label..."
+    curl -s -u "$WP_USER:$WP_APP_PWD" --max-time 30 \
+      -H "Content-Type: application/json" \
+      -X PUT "$SITE_URL/wp-json/wp/v2/plugins/$plugin_path" \
+      -d '{"status":"inactive"}' >/dev/null
+  fi
+
+  info "Deleting $label..."
+  curl -s -u "$WP_USER:$WP_APP_PWD" --max-time 30 \
+    -X DELETE "$SITE_URL/wp-json/wp/v2/plugins/$plugin_path" >/dev/null
+
+  refresh_plugins_json
+  if [ "$(plugin_is_installed "$slug")" = "no" ]; then
+    ok "$label removed"
+    return 0
+  fi
+
+  fail "$label still present after deactivate + delete attempt"
+  return 1
+}
+
 # Helper: install + activate a theme from wordpress.org by slug
 install_wp_theme() {
   local slug="$1"
@@ -571,15 +625,49 @@ if [ "$HAS_MCP" = "yes" ] && [ "$NEEDS_UPGRADE" = "no" ]; then
   SKIP_MCP_INSTALL="yes"
 elif [ "$HAS_MCP" = "yes" ] && [ "$NEEDS_UPGRADE" = "yes" ]; then
   warn "An older MCP setup is present — the skill needs the bundled elementor-mcp fork:"
-  [ "$HAS_OLD_ADAPTER" = "yes" ] && info "  • standalone 'MCP Adapter' plugin found — the fork bundles the adapter, so the separate one should be removed"
+  [ "$HAS_OLD_ADAPTER" = "yes" ] && info "  • standalone 'MCP Adapter' plugin found — the fork bundles the adapter, so the separate one must be removed"
   { [ -n "$EMCP_VER" ] && ver_lt "$EMCP_VER" "$REQUIRED_EMCP_VERSION"; } && info "  • elementor-mcp $EMCP_VER is below the required $REQUIRED_EMCP_VERSION"
-  info "  In WP Admin → Plugins, deactivate + delete the old 'MCP Adapter' and 'MCP Tools for Elementor',"
-  info "  then let this step reinstall the bundled fork (the install below uses --force to overwrite)."
+  info "  Accepting below will deactivate + delete the standalone 'MCP Adapter' via REST"
+  info "  and verify it's gone BEFORE installing the bundled fork — running both at once"
+  info "  double-loads the MCP transport and breaks the route."
   ask "(Re)install the bundled fork now? [Y/n]"
   read -r DO_UPGRADE
   if [[ "$DO_UPGRADE" =~ ^[Nn]$ ]]; then
     warn "Leaving the existing MCP plugins as-is. Remove the old pair and re-run if the MCP misbehaves."
     SKIP_MCP_INSTALL="yes"
+  elif [ "$HAS_OLD_ADAPTER" = "yes" ]; then
+    if remove_plugin "mcp-adapter" "MCP Adapter (standalone)"; then
+      ok "Old standalone MCP Adapter removed — safe to install the bundled fork."
+    else
+      warn "Could not automatically remove the standalone 'MCP Adapter' plugin."
+      cat <<EOF
+
+    Installing the bundled fork on top of the old adapter would leave TWO
+    adapter implementations loaded, which breaks the MCP route. This step
+    will NOT proceed until the standalone adapter is confirmed gone.
+
+    Please remove it by hand:
+      1. Open ${CYAN}${SITE_URL}/wp-admin/plugins.php${RESET}
+      2. Deactivate "MCP Adapter"
+      3. Delete "MCP Adapter"
+
+EOF
+      REMOVED_OLD_ADAPTER="no"
+      while [ "$REMOVED_OLD_ADAPTER" != "yes" ]; do
+        ask "Press Enter once removed (or type 'abort' to stop here)..."
+        read -r ADAPTER_RECHECK
+        if [ "$ADAPTER_RECHECK" = "abort" ]; then
+          abort "Stopped — remove the standalone MCP Adapter plugin, then re-run this wizard."
+        fi
+        refresh_plugins_json
+        if [ "$(plugin_is_installed "mcp-adapter")" = "no" ]; then
+          REMOVED_OLD_ADAPTER="yes"
+          ok "Confirmed — standalone MCP Adapter is gone."
+        else
+          warn "Still detected — try again, or type 'abort'."
+        fi
+      done
+    fi
   fi
 fi
 
