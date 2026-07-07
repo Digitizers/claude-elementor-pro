@@ -8,7 +8,7 @@
 
 **Tech Stack:** Markdown, Bash (`INSTALL.sh`/`.bat`/`.ps1`, `setup-elementor-mcp.sh`, `new-client.sh`), bats tests.
 
-**Spec:** `docs/superpowers/specs/2026-06-04-siteagent-elementor-studio-studio-layer-design.md`
+**Spec:** `docs/superpowers/specs/2026-06-04-claude-elementor-pro-studio-layer-design.md`
 
 ---
 

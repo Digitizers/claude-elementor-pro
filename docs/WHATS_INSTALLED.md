@@ -102,8 +102,9 @@ Nothing destructive happens to existing content unless you explicitly ask Claude
 rm -rf ~/.claude/skills/siteagent-elementor-studio
 rm ~/.claude/scripts/setup-elementor-mcp.sh
 
-# If you installed before the skill was renamed from elementor-mcp, also remove the old dir:
-rm -rf ~/.claude/skills/elementor-mcp
+# If you installed under an earlier skill name, also remove the old dir(s):
+rm -rf ~/.claude/skills/elementor-pro-studio   # the 1.1.x invocation name
+rm -rf ~/.claude/skills/elementor-mcp          # the oldest name
 ```
 
 **Remove from a WordPress site:**
