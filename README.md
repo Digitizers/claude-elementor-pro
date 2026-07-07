@@ -13,7 +13,7 @@ A **Claude Code & OpenClaw skill** that teaches Claude to build directly inside 
 
 > **The short version:** This kit teaches Claude (Anthropic's AI) how to talk to your WordPress site through the Elementor MCP server. You design pages in Claude Code, then Claude places sections, widgets, colors, and typography directly into Elementor for you. Works on local sites (Local-by-Flywheel) and live hosts.
 >
-> **Naming note:** the GitHub repo is `siteagent-elementor-studio`, but the skill itself installs and invokes as **`siteagent-elementor-studio`** (published on [ClawHub](https://clawhub.ai/benkalsky/skills/siteagent-elementor-studio) under **"Elementor Pro Studio"** — OpenClaw-neutral branding). Same kit, same repo — just a repo-independent skill name.
+> **Naming note:** the GitHub repo, the installed/invoked skill name (`siteagent-elementor-studio`), and the [ClawHub](https://clawhub.ai/benkalsky/skills/siteagent-elementor-studio) listing (display name **"SiteAgent Elementor Studio"**) are all aligned. Same kit, same name everywhere.
 
 ---
 
