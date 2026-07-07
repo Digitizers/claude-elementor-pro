@@ -78,7 +78,7 @@ Atomic rebuild (V4) — same tree, atomic tools, flat values on the dedicated he
 ```
 add-flexbox(post_id, parent_id, direction:"column", align:"center", ...)   → returns hero_id
   add-atomic-heading(post_id, parent_id: hero_id, title:"Where estates <em>are entrusted</em>", tag:"h1")
-  add-atomic-paragraph(post_id, parent_id: hero_id, paragraph:"...")
+  add-atomic-paragraph(post_id, parent_id: hero_id, content:"...")   # param is `content` (mapped to the e-paragraph `paragraph` prop internally)
   add-atomic-button(post_id, parent_id: hero_id, text:"Book a consultation")
 ```
 

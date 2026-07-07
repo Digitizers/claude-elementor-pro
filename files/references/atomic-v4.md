@@ -66,10 +66,19 @@ style def in this element's `styles` map, or to a **Global Class** `g-` id in th
 Manager (`apply-global-class` / `create-global-class`). A local id present in `styles`
 but missing from `settings.classes` won't apply; an id in `settings.classes` with no
 `styles` entry and no matching global class is a dangling reference that styles nothing.
-The `add-atomic-*` / `add-flexbox` helpers keep both sides in sync automatically. With
-`update-atomic-widget` (raw `$$type`, no auto-wrap) **you must write both** — the class id
-into `settings.classes.value` AND its definition into the element's `styles` map — or the
-style silently won't persist on the V4 page.
+The **local `styles` map is built at element-creation time** — the `add-atomic-*` /
+`add-flexbox` helpers (and the universal `add-widget`) auto-compile a local class from the
+style props you pass (typography, color, background, …) into the element's `styles` map and
+wire its id into `settings.classes` for you.
+
+> ⚠️ **`update-atomic-widget` writes `settings` only — it cannot write the `styles` map.** Its
+> executor merges through `update_element_settings`, so it updates `settings` (including the
+> `settings.classes` *reference list*) but has **no way to add or change the element's
+> top-level `styles` map**. To restyle a V4 element you therefore either (a) set the style at
+> creation via the `add-atomic-*` helpers, or (b) point `settings.classes` at an existing
+> **Global Class** (`apply-global-class` / `create-global-class`). Writing a class id into
+> `settings.classes` via `update-atomic-widget` with **no** matching global class and **no**
+> pre-existing local `styles` entry is a dangling reference that styles nothing.
 
 ### Responsive on V4 — variants, not `_tablet`/`_mobile` suffixes
 
