@@ -1,8 +1,8 @@
-# claude-elementor-pro Studio-Layer Reshape — Implementation Plan
+# siteagent-elementor-studio Studio-Layer Reshape — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Reshape `claude-elementor-pro` into the studio's Elementor capability anchored on our fork engine — slim the 872-line SKILL via progressive-disclosure references, add 5 studio verticals, lifecycle glue, an engine-vs-Premium doc, and a simplified single-plugin install.
+**Goal:** Reshape `siteagent-elementor-studio` into the studio's Elementor capability anchored on our fork engine — slim the 872-line SKILL via progressive-disclosure references, add 5 studio verticals, lifecycle glue, an engine-vs-Premium doc, and a simplified single-plugin install.
 
 **Architecture:** A Claude skill repo (markdown + bash installers). The build SKILL stays here (the fork bundles no skill). Work is mostly relocating content into `files/references/` + adding new reference docs + fixing the installers to (a) copy the `references/` tree and (b) install our fork (not the 4.x-broken free upstream). No application code; verification is content-preservation diffs, link-resolve checks, and the repo's bats/shell CI.
 
@@ -37,7 +37,7 @@ docs/WHATS_INSTALLED.md                  # MODIFY: single-plugin + references no
 **Branch:** create `feat/studio-layer` off `main` for all tasks.
 
 ```bash
-cd /Users/digitizer/Documents/GitHub/claude-elementor-pro
+cd /Users/digitizer/Documents/GitHub/siteagent-elementor-studio
 git checkout main && git pull --ff-only
 git checkout -b feat/studio-layer
 ```
@@ -135,7 +135,7 @@ Relocate, don't rewrite. Each extracted block is moved verbatim; the SKILL secti
 For EACH row, run an awk that captures from the start heading up to (excluding) the end heading, and write it to the ref file with a 1-line title prefix. Example for Forms:
 
 ```bash
-cd /Users/digitizer/Documents/GitHub/claude-elementor-pro
+cd /Users/digitizer/Documents/GitHub/siteagent-elementor-studio
 awk '/^## Forms$/{f=1} /^## Setup gotchas \(what bit me last time\)$/{f=0} f' files/SKILL.md > /tmp/forms-block.md
 { echo "# Forms — Elementor MCP (reference)"; echo; cat /tmp/forms-block.md; } > files/references/forms.md
 wc -l files/references/forms.md
@@ -447,7 +447,7 @@ git commit -m "$(printf 'feat(studio): 5 studio vertical packs + routing\n\nDent
 - [ ] **Step 1: Link-resolve + content checks**
 
 ```bash
-cd /Users/digitizer/Documents/GitHub/claude-elementor-pro
+cd /Users/digitizer/Documents/GitHub/siteagent-elementor-studio
 # every references/*.md mentioned in SKILL.md exists
 for r in $(grep -ohE 'references/[a-z0-9/-]+\.md' files/SKILL.md | sort -u); do test -f "files/$r" && echo "OK $r" || echo "MISSING $r"; done
 # SKILL shrank
@@ -481,7 +481,7 @@ bash -n INSTALL.sh new-client.sh files/setup-elementor-mcp.sh 2>/dev/null; echo 
 git push -u origin feat/studio-layer
 gh pr create --base main --head feat/studio-layer \
   --title "feat: studio-layer reshape (fork engine, slim SKILL, verticals, lifecycle)" \
-  --body "$(printf 'Reshape claude-elementor-pro into the studio Elementor layer anchored on our fork.\n\n- Slim the 872-line SKILL via progressive-disclosure references (no mechanics lost).\n- 5 studio vertical packs (studio voice, not copied from paid prompts).\n- Lifecycle glue across the toolbox (audit -> build -> content -> host -> ads).\n- engine-and-premium doc: run the fork, never co-run Premium (same classes -> fatal).\n- Single-plugin install (fork bundles the MCP Adapter); installers now copy references/.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)')"
+  --body "$(printf 'Reshape siteagent-elementor-studio into the studio Elementor layer anchored on our fork.\n\n- Slim the 872-line SKILL via progressive-disclosure references (no mechanics lost).\n- 5 studio vertical packs (studio voice, not copied from paid prompts).\n- Lifecycle glue across the toolbox (audit -> build -> content -> host -> ads).\n- engine-and-premium doc: run the fork, never co-run Premium (same classes -> fatal).\n- Single-plugin install (fork bundles the MCP Adapter); installers now copy references/.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)')"
 ```
 
 - [ ] **Step 5: Confirm CI green**

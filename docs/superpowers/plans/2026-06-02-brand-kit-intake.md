@@ -8,7 +8,7 @@
 
 **Tech Stack:** Markdown (skill docs), GitHub Actions (existing `ci.yml`).
 
-**Repo / branch:** `/Users/digitizer/Documents/GitHub/claude-elementor-pro`, branch `feat/brand-kit-intake` off `main`.
+**Repo / branch:** `/Users/digitizer/Documents/GitHub/siteagent-elementor-studio`, branch `feat/brand-kit-intake` off `main`.
 
 **Verified MCP tool shapes:**
 - `update-global-colors`: `{ "colors": [{ "_id", "title", "color" }] }`
@@ -29,7 +29,7 @@
 - [ ] **Step 1**
 
 ```bash
-cd /Users/digitizer/Documents/GitHub/claude-elementor-pro
+cd /Users/digitizer/Documents/GitHub/siteagent-elementor-studio
 git checkout main && git pull --ff-only
 git checkout -b feat/brand-kit-intake
 mkdir -p files/references
@@ -301,7 +301,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ```bash
 git push -u origin feat/brand-kit-intake
-gh pr create --repo Digitizers/claude-elementor-pro --base main --head feat/brand-kit-intake \
+gh pr create --repo Digitizers/siteagent-elementor-studio --base main --head feat/brand-kit-intake \
   --title "feat: brand-kit intake & token vocabulary (P1a)" \
   --body "$(cat <<'EOF'
 ## What

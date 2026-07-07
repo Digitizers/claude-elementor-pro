@@ -941,7 +941,7 @@ cat <<EOF
   ${BOLD}What can you do now?${RESET}
 
   Claude can ${BOLD}build${RESET}, ${BOLD}edit${RESET}, ${BOLD}reference${RESET}, or ${BOLD}explore${RESET} your Elementor site.
-  Type ${CYAN}/elementor-pro-studio${RESET} or ask in plain words. Examples:
+  Type ${CYAN}/siteagent-elementor-studio${RESET} or ask in plain words. Examples:
 
   ${BOLD}🏗  Build${RESET} — create new pages or sections from a design
     ${DIM}"Build me a homepage based on this HTML mockup"${RESET}
@@ -960,12 +960,12 @@ cat <<EOF
 
   ${BOLD}🧭  Explore${RESET} — figure out what's possible
     ${DIM}"What can you do with my Elementor site?"${RESET}
-    ${DIM}"/elementor-pro-studio"  (Claude will ask which mode you want)${RESET}
+    ${DIM}"/siteagent-elementor-studio"  (Claude will ask which mode you want)${RESET}
 
   ${BOLD}${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}
 
   ${BOLD}Reference:${RESET}
-    Skill file: ~/.claude/skills/elementor-pro-studio/SKILL.md
+    Skill file: ~/.claude/skills/siteagent-elementor-studio/SKILL.md
     MCP plugin: https://github.com/Digitizers/elementor-mcp
 
 EOF

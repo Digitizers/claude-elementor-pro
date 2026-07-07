@@ -1,12 +1,12 @@
-# claude-elementor-pro → studio-layer reshape — design spec
+# siteagent-elementor-studio → studio-layer reshape — design spec
 
 **Date:** 2026-06-04
-**Repo:** `Digitizers/claude-elementor-pro`
+**Repo:** `Digitizers/siteagent-elementor-studio`
 **Trigger:** Field Report #3 — the paid `emcp-pro` (Premium) is the same lineage as our fork but **behind on Elementor 4.x GA** (76 tools, 3.x schema) while our **fork** `Digitizers/elementor-mcp` v1.9.0 is 4.x-correct (94 tools, PR #52). Decision: anchor the studio's Elementor capability on the **fork**, focus this skill on the **studio layer**.
 
 ## Positioning
 
-`claude-elementor-pro` is the studio's Elementor capability:
+`siteagent-elementor-studio` is the studio's Elementor capability:
 - **Engine = the fork** `Digitizers/elementor-mcp` v1.9.0 (94 tools, 4.x-correct). **Not** Premium — Premium is behind on 4.x GA and shares the fork's class names (`Elementor_MCP_*`, constant `ELEMENTOR_MCP_VERSION`), so the two are **mutually exclusive** (co-activation = redeclare fatal).
 - **Build guide = this skill's SKILL.md** (the fork bundles no skill — only Premium does). So the build mechanics MUST stay here.
 - **Studio layer** (this reshape) = verticals, lifecycle glue, brand/voice, and a slimmer SKILL.
@@ -24,7 +24,7 @@
 
 ## Decisions (confirmed with user)
 
-1. **Build mechanics stay in claude-elementor-pro** (the fork has no bundled skill). The reshape repositions + slims; it does not gut the mechanics.
+1. **Build mechanics stay in siteagent-elementor-studio** (the fork has no bundled skill). The reshape repositions + slims; it does not gut the mechanics.
 2. Build all four studio-layer workstreams: **verticals, lifecycle glue, brand/voice + Premium relationship doc, slim the SKILL.**
 
 ## Architecture / file structure (after reshape)

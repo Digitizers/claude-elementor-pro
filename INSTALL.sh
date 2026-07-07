@@ -36,19 +36,22 @@ cat <<'BANNER'
 BANNER
 
 step "Creating destination folders"
-SKILL_DIR="$HOME/.claude/skills/elementor-pro-studio"
+SKILL_DIR="$HOME/.claude/skills/siteagent-elementor-studio"
 SCRIPT_DIR="$HOME/.claude/scripts"
 mkdir -p "$SKILL_DIR"
 mkdir -p "$SCRIPT_DIR"
 ok "$SKILL_DIR"
 ok "$SCRIPT_DIR"
 
-# The skill was previously installed as "elementor-mcp" — migrate/remove that
-# old directory so Claude doesn't end up loading both.
-OLD_SKILL_DIR="$HOME/.claude/skills/elementor-mcp"
-if [ -d "$OLD_SKILL_DIR" ]; then
+# The skill shipped under earlier names — "elementor-mcp" (oldest) and
+# "elementor-pro-studio" (the 1.1.x invocation name) — before this rename to
+# siteagent-elementor-studio. Migrate/remove any of those old directories so
+# Claude doesn't end up loading two copies of the skill.
+for OLD_NAME in elementor-mcp elementor-pro-studio; do
+  OLD_SKILL_DIR="$HOME/.claude/skills/$OLD_NAME"
+  [ -d "$OLD_SKILL_DIR" ] || continue
   warn "Found a previous install at $OLD_SKILL_DIR (this kit's old skill name)."
-  printf "    Remove it now that the skill installs as elementor-pro-studio? [y/N] "
+  printf "    Remove it now that the skill installs as siteagent-elementor-studio? [y/N] "
   read -r ans
   if [[ "$ans" =~ ^[Yy]$ ]]; then
     rm -rf "$OLD_SKILL_DIR"
@@ -56,7 +59,7 @@ if [ -d "$OLD_SKILL_DIR" ]; then
   else
     warn "Leaving $OLD_SKILL_DIR in place — remove it manually to avoid Claude loading both the old and new skill."
   fi
-fi
+done
 
 step "Copying files"
 
@@ -106,7 +109,7 @@ cat <<EOF
   ${BOLD}${GREEN}✓ Install complete${RESET}
 
   ${BOLD}Files installed at:${RESET}
-    ${DIM}~/.claude/skills/elementor-pro-studio/SKILL.md${RESET}
+    ${DIM}~/.claude/skills/siteagent-elementor-studio/SKILL.md${RESET}
     ${DIM}~/.claude/scripts/setup-elementor-mcp.sh${RESET}
 
   ${BOLD}Next steps:${RESET}

@@ -38,7 +38,7 @@ git checkout -b feat/toolbox-hub
 Intro line: "The studio's OWN built tools. Route here before deciding how to deliver
 — know the arsenal first." Then the table (from the spec) with columns
 `Tool | Repo | What it does | When to use | Status`, covering the 5:
-claude-elementor-pro, wordpress-api-pro, elementor-mcp (fork), cloudways-mcp,
+siteagent-elementor-studio, wordpress-api-pro, elementor-mcp (fork), cloudways-mcp,
 digitizer-os. Add per-tool "key capabilities" bullets under the table and the status
 notes (elementor-mcp fork = the engine behind elementor-pro; cloudways-mcp = new,
 MCP server availability uncertain). Each tool name must appear verbatim.
@@ -49,7 +49,7 @@ MCP server availability uncertain). Each tool name must appear verbatim.
 python3 - <<'PY'
 import pathlib
 md = pathlib.Path("digitizer-os/knowledge/studio-toolbox.md").read_text()
-for t in ["claude-elementor-pro","wordpress-api-pro","elementor-mcp","cloudways-mcp","digitizer-os"]:
+for t in ["siteagent-elementor-studio","wordpress-api-pro","elementor-mcp","cloudways-mcp","digitizer-os"]:
     assert t in md, f"missing tool {t}"
 print("toolbox catalog ok (5 tools)")
 PY
@@ -86,7 +86,7 @@ md = pathlib.Path("digitizer-os/knowledge/client-lifecycle.md").read_text()
 stages = ["Lead","audit","Proposal","Onboard","Brand","Build","Content","Host"]
 miss = [s for s in stages if s not in md]
 assert not miss, f"missing stages: {miss}"
-for t in ["claude-elementor-pro","wordpress-api-pro","cloudways-mcp","digitizer-os"]:
+for t in ["siteagent-elementor-studio","wordpress-api-pro","cloudways-mcp","digitizer-os"]:
     assert t in md, f"lifecycle missing tool {t}"
 print(f"lifecycle ok ({len(stages)} stages)")
 PY
@@ -115,9 +115,9 @@ object keyed by tool name, each `{repo, role, status}`, plus a
 ```json
   "studio_flagship_tools": {
     "_canonical": "knowledge/studio-toolbox.md",
-    "claude-elementor-pro": { "repo": "Digitizers/claude-elementor-pro", "role": "Build Elementor sites via MCP — Pro/V4 detect, brand-kit tokens, 10 recipes, new-client onboarding", "status": "active" },
+    "siteagent-elementor-studio": { "repo": "Digitizers/siteagent-elementor-studio", "role": "Build Elementor sites via MCP — Pro/V4 detect, brand-kit tokens, 10 recipes, new-client onboarding", "status": "active" },
     "wordpress-api-pro":    { "repo": "Digitizers/wordpress-api-pro", "role": "WP REST ops — content/SEO/media/ACF/Jet/WooCommerce + CPT seeding", "status": "active" },
-    "elementor-mcp":        { "repo": "Digitizers/elementor-mcp", "role": "The MCP plugin (fork) — V4/atomic detect+save+styling fixes; engine behind claude-elementor-pro", "status": "active" },
+    "elementor-mcp":        { "repo": "Digitizers/elementor-mcp", "role": "The MCP plugin (fork) — V4/atomic detect+save+styling fixes; engine behind siteagent-elementor-studio", "status": "active" },
     "cloudways-mcp":        { "repo": "Digitizers/cloudways-mcp", "role": "Cloudways hosting ops via MCP — multi-account, monitoring, maintenance, audit", "status": "new; MCP server availability uncertain (cw-mcp 404 / official Q2 2026)" },
     "digitizer-os":         { "repo": "Digitizers/digitizer-os", "role": "This brain — strategy/sales/pricing/services/delivery/growth", "status": "active" }
   },
@@ -130,7 +130,7 @@ python3 - <<'PY'
 import json, pathlib
 d = json.loads(pathlib.Path("digitizer-os/knowledge/tools-and-repos.json").read_text())
 assert "studio_flagship_tools" in d
-assert set(["claude-elementor-pro","wordpress-api-pro","elementor-mcp","cloudways-mcp","digitizer-os"]) <= set(d["studio_flagship_tools"])
+assert set(["siteagent-elementor-studio","wordpress-api-pro","elementor-mcp","cloudways-mcp","digitizer-os"]) <= set(d["studio_flagship_tools"])
 assert "installed_skills" in d  # existing data preserved
 print("json ok")
 PY
@@ -199,7 +199,7 @@ gh pr create --repo Digitizers/digitizer-os --base main --head feat/toolbox-hub 
 ## What
 Makes digitizer-os the hub that knows the studio's own tools and routes the client lifecycle.
 
-- `knowledge/studio-toolbox.md` — catalog of the 5 flagship tools (claude-elementor-pro, wordpress-api-pro, elementor-mcp fork, cloudways-mcp, digitizer-os): what each does, when to use, status.
+- `knowledge/studio-toolbox.md` — catalog of the 5 flagship tools (siteagent-elementor-studio, wordpress-api-pro, elementor-mcp fork, cloudways-mcp, digitizer-os): what each does, when to use, status.
 - `knowledge/client-lifecycle.md` — stage→tool router: lead → audit → proposal → onboard → brand → build → content/SEO → host/monitor.
 - `tools-and-repos.json` — adds a `studio_flagship_tools` block (existing data preserved), pointing to the catalog as canonical.
 - `SKILL.md` — Quick Route + Rules now route "which tool / how do we deliver / full client flow" to the two docs.
