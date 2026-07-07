@@ -5,6 +5,10 @@ All notable changes to the siteagent-elementor-studio skill kit are documented h
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.2.1 — 2026-07-08
+
+- Fix the skill's H1 title in `files/SKILL.md` (`# Elementor Pro Studio Skill` → `# SiteAgent Elementor Studio Skill`) — a leftover from before the rename that ClawHub renders as the listing header. Also aligns the ClawHub publish display name to **"SiteAgent Elementor Studio"**. No functional change.
+
 ## 1.2.0 — 2026-07-07
 
 - **Renamed: `claude-elementor-pro` → `siteagent-elementor-studio`.** The kit's brand tokens (repo name, install URLs, README title) **and the skill's own invocation name** (`elementor-pro-studio` → `siteagent-elementor-studio`) are rebranded, avoiding the trademark overlap of a name that stacked "Claude" and "Elementor **Pro**" (Elementor's flagship product). Descriptive references — "for Claude Code", Anthropic attribution, Elementor **Pro**-compatibility badges, and the `emersimeon/claude-elementor-kit` upstream credit — are unchanged (nominative/descriptive use).
