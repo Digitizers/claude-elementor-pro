@@ -55,10 +55,13 @@ New-Item -ItemType Directory -Force -Path $ScriptDir | Out-Null
 Write-Ok $SkillDir
 Write-Ok $ScriptDir
 
-# The skill was previously installed as "elementor-mcp" -- migrate/remove that
-# old directory so Claude doesn't end up loading both.
-$OldSkillDir = Join-Path $ClaudeDir "skills\elementor-mcp"
-if (Test-Path $OldSkillDir) {
+# The skill shipped under earlier names -- "elementor-mcp" (oldest) and
+# "elementor-pro-studio" (the 1.1.x invocation name) -- before this rename to
+# siteagent-elementor-studio. Migrate/remove any of those old directories so
+# Claude doesn't end up loading two copies of the skill.
+foreach ($OldName in @("elementor-mcp", "elementor-pro-studio")) {
+    $OldSkillDir = Join-Path $ClaudeDir "skills\$OldName"
+    if (-not (Test-Path $OldSkillDir)) { continue }
     Write-Warn "Found a previous install at $OldSkillDir (this kit's old skill name)."
     $ans = Read-Host "    Remove it now that the skill installs as siteagent-elementor-studio? [y/N]"
     if ($ans -match '^[Yy]$') {

@@ -7,7 +7,8 @@ and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
 ## 1.2.0 — 2026-07-07
 
-- **Renamed: `claude-elementor-pro` → `siteagent-elementor-studio`.** The kit's brand tokens (repo name, the internal `elementor-pro-studio` "studio layer" name, install URLs, README title) are rebranded to `siteagent-elementor-studio`, avoiding the trademark overlap of a name that stacked "Claude" and "Elementor **Pro**" (Elementor's flagship product). Descriptive references — "for Claude Code", Anthropic attribution, Elementor **Pro**-compatibility badges, and the `emersimeon/claude-elementor-kit` upstream credit — are unchanged (nominative/descriptive use). The old GitHub URL redirects, so existing installs keep working. No functional change.
+- **Renamed: `claude-elementor-pro` → `siteagent-elementor-studio`.** The kit's brand tokens (repo name, install URLs, README title) **and the skill's own invocation name** (`elementor-pro-studio` → `siteagent-elementor-studio`) are rebranded, avoiding the trademark overlap of a name that stacked "Claude" and "Elementor **Pro**" (Elementor's flagship product). Descriptive references — "for Claude Code", Anthropic attribution, Elementor **Pro**-compatibility badges, and the `emersimeon/claude-elementor-kit` upstream credit — are unchanged (nominative/descriptive use).
+- **Upgrade note (1.1.x → 1.2.0):** the skill now installs to `~/.claude/skills/siteagent-elementor-studio` and is invoked as `/siteagent-elementor-studio` (previously `elementor-pro-studio`). `INSTALL.sh`/`INSTALL.ps1` detect and offer to remove the prior `elementor-pro-studio` (and older `elementor-mcp`) skill directories so Claude doesn't load two copies. The old GitHub URL redirects.
 
 ## 1.1.2 — 2026-06-14
 
