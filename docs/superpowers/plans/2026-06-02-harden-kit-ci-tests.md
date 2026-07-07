@@ -642,7 +642,7 @@ git push -u origin feat/ci-and-tests
 
 Run:
 ```bash
-gh pr create --repo Digitizers/claude-elementor-pro --base main --head feat/ci-and-tests \
+gh pr create --repo Digitizers/siteagent-elementor-studio --base main --head feat/ci-and-tests \
   --title "Harden the kit for scale: CI + bats tests" \
   --body "$(cat <<'EOF'
 ## What
@@ -674,7 +674,7 @@ EOF
 
 - [ ] **Step 3: Confirm CI is running**
 
-Run: `gh pr checks --repo Digitizers/claude-elementor-pro --watch` (or report the PR URL and that checks were triggered).
+Run: `gh pr checks --repo Digitizers/siteagent-elementor-studio --watch` (or report the PR URL and that checks were triggered).
 Expected: the `shell` and `bats` jobs run. If red, read logs and fix forward on the branch.
 
 ---

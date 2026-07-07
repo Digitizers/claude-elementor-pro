@@ -1,11 +1,11 @@
-# Claude + Elementor Pro — Claude Code & OpenClaw Skill
+# SiteAgent Elementor Studio — Claude Code & OpenClaw Skill
 
-[![CI](https://github.com/Digitizers/claude-elementor-pro/actions/workflows/ci.yml/badge.svg)](https://github.com/Digitizers/claude-elementor-pro/actions/workflows/ci.yml)
+[![CI](https://github.com/Digitizers/siteagent-elementor-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/Digitizers/siteagent-elementor-studio/actions/workflows/ci.yml)
 ![Claude Code Skill](https://img.shields.io/badge/Claude_Code-Skill-d97757)
 ![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-purple)
 ![Elementor](https://img.shields.io/badge/Elementor-Pro-92003b)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/version-1.1.2-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 
 Build **WordPress sites with AI** — design with Claude Code, then have Claude build it directly inside your [Elementor](https://digitizer.li/elementor) Free or Pro site. No more rebuilding mockups by hand.
 
@@ -13,7 +13,7 @@ A **Claude Code & OpenClaw skill** that teaches Claude to build directly inside 
 
 > **The short version:** This kit teaches Claude (Anthropic's AI) how to talk to your WordPress site through the Elementor MCP server. You design pages in Claude Code, then Claude places sections, widgets, colors, and typography directly into Elementor for you. Works on local sites (Local-by-Flywheel) and live hosts.
 >
-> **Naming note:** the GitHub repo is `claude-elementor-pro`, but the skill itself installs and invokes as **`elementor-pro-studio`** (published on [ClawHub](https://clawhub.ai/benkalsky/skills/elementor-pro-studio) under **"Elementor Pro Studio"** — OpenClaw-neutral branding). Same kit, same repo — just a repo-independent skill name.
+> **Naming note:** the GitHub repo is `siteagent-elementor-studio`, but the skill itself installs and invokes as **`siteagent-elementor-studio`** (published on [ClawHub](https://clawhub.ai/benkalsky/skills/siteagent-elementor-studio) under **"Elementor Pro Studio"** — OpenClaw-neutral branding). Same kit, same repo — just a repo-independent skill name.
 
 ---
 
@@ -23,7 +23,7 @@ These are the free skills behind [**Aura**](https://my-aura.app) — one AI web-
 
 | Stage | Skill | Role |
 | --- | --- | --- |
-| 🎨 Build | [**claude-elementor-pro** ← you are here](https://github.com/Digitizers/claude-elementor-pro) | Design & build sites inside Elementor |
+| 🎨 Build | [**siteagent-elementor-studio** ← you are here](https://github.com/Digitizers/siteagent-elementor-studio) | Design & build sites inside Elementor |
 | 🔎 Audit + Content | [wordpress-api-pro](https://github.com/Digitizers/wordpress-api-pro) | REST content ops, SEO & site audits |
 | 🖥 Host | [cloudways-mcp](https://github.com/Digitizers/cloudways-mcp) · [hostinger-mcp](https://github.com/Digitizers/hostinger-mcp) | Provision & operate the infrastructure |
 
@@ -32,7 +32,7 @@ These are the free skills behind [**Aura**](https://my-aura.app) — one AI web-
 ## What's inside
 
 ```
-claude-elementor-pro/
+siteagent-elementor-studio/
 ├── INSTALL.sh          ← Installer for Mac & Linux
 ├── INSTALL.bat         ← Installer for Windows (double-click)
 ├── INSTALL.ps1         ← Windows installer (PowerShell)
@@ -108,7 +108,7 @@ You **don't install these yourself.** The setup wizard downloads them from GitHu
 
 The two files in this repo's `files/` folder get copied to:
 
-- `~/.claude/skills/elementor-pro-studio/SKILL.md` — the cheat sheet Claude reads each session
+- `~/.claude/skills/siteagent-elementor-studio/SKILL.md` — the cheat sheet Claude reads each session
 - `~/.claude/scripts/setup-elementor-mcp.sh` — the wizard you run per WordPress site
 
 > 📋 **Want a one-page reference of every file/plugin the kit touches?** See [`docs/WHATS_INSTALLED.md`](docs/WHATS_INSTALLED.md).
@@ -121,8 +121,8 @@ The two files in this repo's `files/` folder get copied to:
 
 ```bash
 # 1. Clone or download this repo
-git clone https://github.com/Digitizers/claude-elementor-pro.git
-cd claude-elementor-pro
+git clone https://github.com/Digitizers/siteagent-elementor-studio.git
+cd siteagent-elementor-studio
 
 # 2. Run the installer
 bash INSTALL.sh
@@ -137,7 +137,7 @@ bash INSTALL.sh
 ```
 
 The installer copies two files into your `~/.claude/` folder:
-- `~/.claude/skills/elementor-pro-studio/SKILL.md`
+- `~/.claude/skills/siteagent-elementor-studio/SKILL.md`
 - `~/.claude/scripts/setup-elementor-mcp.sh`
 
 Safe to re-run — it'll ask before overwriting existing files.
@@ -259,7 +259,7 @@ Open an issue on this repo. Don't promise me you'll wait for an answer, but I re
 
 ## Links
 
-- **Repository:** https://github.com/Digitizers/claude-elementor-pro
+- **Repository:** https://github.com/Digitizers/siteagent-elementor-studio
 - **OpenClaw:** https://openclaw.ai
 - **Elementor MCP server (our fork):** https://github.com/Digitizers/elementor-mcp
 - **Original elementor-mcp (credit: @msrbuilds):** https://github.com/msrbuilds/elementor-mcp

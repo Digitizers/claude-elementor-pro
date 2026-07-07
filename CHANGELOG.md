@@ -1,13 +1,17 @@
 # Changelog
 
-All notable changes to the claude-elementor-pro skill kit are documented here.
+All notable changes to the siteagent-elementor-studio skill kit are documented here.
 
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.2.0 — 2026-07-07
+
+- **Renamed: `claude-elementor-pro` → `siteagent-elementor-studio`.** The kit's brand tokens (repo name, the internal `elementor-pro-studio` "studio layer" name, install URLs, README title) are rebranded to `siteagent-elementor-studio`, avoiding the trademark overlap of a name that stacked "Claude" and "Elementor **Pro**" (Elementor's flagship product). Descriptive references — "for Claude Code", Anthropic attribution, Elementor **Pro**-compatibility badges, and the `emersimeon/claude-elementor-kit` upstream credit — are unchanged (nominative/descriptive use). The old GitHub URL redirects, so existing installs keep working. No functional change.
+
 ## 1.1.2 — 2026-06-14
 
-Security hardening (ClawHub audit — elementor-pro-studio 1.1.1):
+Security hardening (ClawHub audit — siteagent-elementor-studio 1.1.1):
 - Read the WordPress application password silently (`read -rs`) so it no longer echoes to the terminal.
 - Removed the username-enumeration fallback on auth failure (generic error instead).
 - Declared the skill's shell/network/filesystem/env permissions in SKILL.md; noted shell/setup runs only on explicit confirmation.
@@ -18,12 +22,12 @@ Security hardening (ClawHub audit — elementor-pro-studio 1.1.1):
 ## 1.1.1 — 2026-06-13
 
 - Point all operational references at our fork `Digitizers/elementor-mcp` (the Elementor 4.x-correct engine the skill drives); msrbuilds/elementor-mcp is retained as end-credit attribution only.
-- Fix the post-install prompt to say `/elementor-pro-studio` (was still `/elementor-mcp`).
+- Fix the post-install prompt to say `/siteagent-elementor-studio` (was still `/elementor-mcp`).
 - `publish-clawhub.yml` dry-run now calls the real `clawhub skill publish --dry-run` (confirmed a genuine CLI flag) instead of just echoing the command.
 
 ## 1.1.0 — 2026-06-12
 
-- Renamed the skill's invocation name to `elementor-pro-studio` (OpenClaw-neutral) and published to ClawHub under "Elementor Pro Studio". The GitHub repo remains `claude-elementor-pro`.
+- Renamed the skill's invocation name to `siteagent-elementor-studio` (OpenClaw-neutral) and published to ClawHub under "Elementor Pro Studio". The GitHub repo remains `siteagent-elementor-studio`.
 - Added a ClawHub publish workflow.
 
 ## [1.0.1] - 2026-07-03
@@ -72,4 +76,4 @@ Addresses Codex review findings across the installers and reference docs.
 
 ## [1.0.0]
 
-- Initial release of the Claude + Elementor Pro skill kit.
+- Initial release of the SiteAgent Elementor Studio skill kit.

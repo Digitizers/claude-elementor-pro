@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-02
 **Status:** Approved (design), pending implementation
-**Repo:** `Digitizers/claude-elementor-pro` (the skill kit)
+**Repo:** `Digitizers/siteagent-elementor-studio` (the skill kit)
 **Branch:** `feat/brand-kit-intake`
 
 ## Problem

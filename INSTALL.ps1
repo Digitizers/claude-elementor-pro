@@ -46,7 +46,7 @@ if (-not (Test-Path (Join-Path $SrcFiles "setup-elementor-mcp.sh"))) {
 
 Write-Step "Creating destination folders"
 $ClaudeDir  = Join-Path $HOME ".claude"
-$SkillDir   = Join-Path $ClaudeDir "skills\elementor-pro-studio"
+$SkillDir   = Join-Path $ClaudeDir "skills\siteagent-elementor-studio"
 $ScriptDir  = Join-Path $ClaudeDir "scripts"
 
 New-Item -ItemType Directory -Force -Path $SkillDir  | Out-Null
@@ -60,7 +60,7 @@ Write-Ok $ScriptDir
 $OldSkillDir = Join-Path $ClaudeDir "skills\elementor-mcp"
 if (Test-Path $OldSkillDir) {
     Write-Warn "Found a previous install at $OldSkillDir (this kit's old skill name)."
-    $ans = Read-Host "    Remove it now that the skill installs as elementor-pro-studio? [y/N]"
+    $ans = Read-Host "    Remove it now that the skill installs as siteagent-elementor-studio? [y/N]"
     if ($ans -match '^[Yy]$') {
         Remove-Item -Recurse -Force $OldSkillDir
         Write-Ok "Removed old $OldSkillDir"
@@ -117,7 +117,7 @@ Write-Host @"
   [OK] Install complete
 
   Files installed at:
-    ~/.claude/skills/elementor-pro-studio/SKILL.md
+    ~/.claude/skills/siteagent-elementor-studio/SKILL.md
     ~/.claude/scripts/setup-elementor-mcp.sh
 
   IMPORTANT FOR WINDOWS USERS:

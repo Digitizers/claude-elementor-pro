@@ -1,7 +1,7 @@
 name: Publish to ClawHub
 
 # Publishes the skill payload (files/) to ClawHub under the slug
-# "elementor-pro-studio" (display name "Elementor Pro Studio").
+# "siteagent-elementor-studio" (display name "Elementor Pro Studio").
 # Dormant until the repo is public and a CLAWHUB_TOKEN repo/org secret is set.
 #
 # Triggers:
@@ -9,8 +9,8 @@ name: Publish to ClawHub
 #   - manual run (workflow_dispatch) → choose dry-run or real publish
 #
 # The version is read from the skill's SKILL.md front matter (`version:`).
-# Note: this repo stays "claude-elementor-pro" — only the published skill
-# slug/name are OpenClaw-neutral ("elementor-pro-studio" / "Elementor Pro Studio").
+# Note: this repo stays "siteagent-elementor-studio" — only the published skill
+# slug/name are OpenClaw-neutral ("siteagent-elementor-studio" / "Elementor Pro Studio").
 
 on:
   release:
@@ -60,7 +60,7 @@ jobs:
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
         run: |
           if [ "$DRY_RUN" = "true" ]; then
-            clawhub skill publish "$SKILL_DIR" --slug elementor-pro-studio --name "Elementor Pro Studio" --version "${{ steps.ver.outputs.version }}" --dry-run
+            clawhub skill publish "$SKILL_DIR" --slug siteagent-elementor-studio --name "Elementor Pro Studio" --version "${{ steps.ver.outputs.version }}" --dry-run
             exit 0
           fi
-          clawhub skill publish "$SKILL_DIR" --slug elementor-pro-studio --name "Elementor Pro Studio" --version "${{ steps.ver.outputs.version }}"
+          clawhub skill publish "$SKILL_DIR" --slug siteagent-elementor-studio --name "Elementor Pro Studio" --version "${{ steps.ver.outputs.version }}"

@@ -6,7 +6,7 @@
 
 ## Problem
 
-`claude-elementor-pro` is a client-onboarding kit (two bash scripts + a skill file). It has
+`siteagent-elementor-studio` is a client-onboarding kit (two bash scripts + a skill file). It has
 **no CI and no tests**. At multi-client scale the two failure modes that hurt are:
 
 1. **Silent parse-failure bugs.** The scripts parse WordPress `/wp-json/` output with inline

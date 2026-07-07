@@ -8,7 +8,7 @@
 
 **Tech Stack:** Markdown (skill docs), GitHub Actions (`ci.yml`).
 
-**Repo / branch:** `/Users/digitizer/Documents/GitHub/claude-elementor-pro`, branch `feat/recipe-library` off `main`.
+**Repo / branch:** `/Users/digitizer/Documents/GitHub/siteagent-elementor-studio`, branch `feat/recipe-library` off `main`.
 
 **Exact recipe titles (CI checks these — keep verbatim):**
 `Hero`, `Services grid`, `Split (image + text)`, `Stats band`, `Testimonials`, `CTA band`, `Contact`, `FAQ`, `Pricing`, `Logos strip`.
@@ -28,7 +28,7 @@
 ## Task 0: Branch
 
 ```bash
-cd /Users/digitizer/Documents/GitHub/claude-elementor-pro
+cd /Users/digitizer/Documents/GitHub/siteagent-elementor-studio
 git checkout main && git pull --ff-only
 git checkout -b feat/recipe-library
 ```
@@ -197,7 +197,7 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ```bash
 git push -u origin feat/recipe-library
-gh pr create --repo Digitizers/claude-elementor-pro --base main --head feat/recipe-library \
+gh pr create --repo Digitizers/siteagent-elementor-studio --base main --head feat/recipe-library \
   --title "feat: section recipe library (P1b)" \
   --body "$(cat <<'EOF'
 ## What

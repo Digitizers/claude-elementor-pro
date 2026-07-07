@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-02
 **Status:** Approved (design), pending implementation
-**Repo:** `Digitizers/claude-elementor-pro`
+**Repo:** `Digitizers/siteagent-elementor-studio`
 **Branch:** `feat/recipe-library`
 **Depends on:** P1a brand-kit tokens (PR #10) — recipes reference those tokens by name.
 

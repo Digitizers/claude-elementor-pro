@@ -36,7 +36,7 @@ cat <<'BANNER'
 BANNER
 
 step "Creating destination folders"
-SKILL_DIR="$HOME/.claude/skills/elementor-pro-studio"
+SKILL_DIR="$HOME/.claude/skills/siteagent-elementor-studio"
 SCRIPT_DIR="$HOME/.claude/scripts"
 mkdir -p "$SKILL_DIR"
 mkdir -p "$SCRIPT_DIR"
@@ -48,7 +48,7 @@ ok "$SCRIPT_DIR"
 OLD_SKILL_DIR="$HOME/.claude/skills/elementor-mcp"
 if [ -d "$OLD_SKILL_DIR" ]; then
   warn "Found a previous install at $OLD_SKILL_DIR (this kit's old skill name)."
-  printf "    Remove it now that the skill installs as elementor-pro-studio? [y/N] "
+  printf "    Remove it now that the skill installs as siteagent-elementor-studio? [y/N] "
   read -r ans
   if [[ "$ans" =~ ^[Yy]$ ]]; then
     rm -rf "$OLD_SKILL_DIR"
@@ -106,7 +106,7 @@ cat <<EOF
   ${BOLD}${GREEN}✓ Install complete${RESET}
 
   ${BOLD}Files installed at:${RESET}
-    ${DIM}~/.claude/skills/elementor-pro-studio/SKILL.md${RESET}
+    ${DIM}~/.claude/skills/siteagent-elementor-studio/SKILL.md${RESET}
     ${DIM}~/.claude/scripts/setup-elementor-mcp.sh${RESET}
 
   ${BOLD}Next steps:${RESET}
