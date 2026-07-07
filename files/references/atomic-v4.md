@@ -38,6 +38,57 @@ persist on an atomic page, and atomic writes don't belong on a classic page.
 - **Confirm keys per widget** with `get-widget-schema` before building anything
   non-trivial; the atomic prop names differ from the classic control names.
 
+### How local styles actually attach — `settings.classes` + the `styles` map
+
+This is the wiring the dedicated helpers do for you, and the wiring you must reproduce
+by hand when using the universal `update-atomic-widget` escape hatch. An atomic element
+carries **two coupled pieces**:
+
+1. **`settings.classes`** — a typed prop listing the class IDs the element wears:
+   ```json
+   "classes": { "$$type": "classes", "value": ["e-<elementId>-<hash>", "g-1a2b3c4"] }
+   ```
+   It is a **reference list only** — an id here with no matching style definition renders
+   nothing.
+2. **`styles`** — a **top-level map on the element** (sibling to `settings`/`elements`),
+   keyed by the same class id, holding the actual style definition:
+   ```json
+   "styles": {
+     "e-<elementId>-<hash>": {
+       "id": "e-<elementId>-<hash>", "label": "local", "type": "class",
+       "variants": [ { "meta": {"breakpoint":"desktop","state":null}, "props": { /* $$type props */ }, "custom_css": null } ]
+     }
+   }
+   ```
+
+**The rule:** every id in `settings.classes.value` must resolve — either to a **local**
+style def in this element's `styles` map, or to a **Global Class** `g-` id in the Class
+Manager (`apply-global-class` / `create-global-class`). A local id present in `styles`
+but missing from `settings.classes` won't apply; an id in `settings.classes` with no
+`styles` entry and no matching global class is a dangling reference that styles nothing.
+The `add-atomic-*` / `add-flexbox` helpers keep both sides in sync automatically. With
+`update-atomic-widget` (raw `$$type`, no auto-wrap) **you must write both** — the class id
+into `settings.classes.value` AND its definition into the element's `styles` map — or the
+style silently won't persist on the V4 page.
+
+### Responsive on V4 — variants, not `_tablet`/`_mobile` suffixes
+
+Classic widgets take responsive values as **suffixed keys** (`align_tablet`,
+`columns_mobile` — see `../SKILL.md`). Atomic elements do **not**: each style def holds a
+**`variants` array**, and a variant's `meta.breakpoint` (`desktop` = base, then `tablet`,
+`mobile`, plus any active custom breakpoints) + `meta.state` (`null`/`hover`/`focus`/…)
+select when its `props` apply. Author responsive/state styling by adding variants:
+
+- Via **Global Classes**: `create-global-class` / `update-global-class` take a `variants`
+  array of `{ breakpoint, state, styles }` — the base (desktop) is the plain `styles` map,
+  each extra variant a breakpoint/state override. See `design-system-crud.md`.
+- Via **inline local styles**: add another entry to the style def's `variants` array with
+  the target `meta.breakpoint`.
+
+The breakpoint set is **not fixed** — it derives from Elementor's active breakpoints, so a
+site with custom breakpoints exposes more than `tablet`/`mobile`. Don't hardcode a list;
+mirror the breakpoints the site actually defines.
+
 ### Build order on V4
 
 Same top-down discipline as classic, with atomic tools:

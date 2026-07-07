@@ -1,8 +1,8 @@
 ---
 name: siteagent-elementor-studio
-version: 1.2.1
+version: 1.3.0
 license: MIT
-description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro (native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion vs free-tier workarounds) AND the page engine (classic vs Elementor 4 atomic/V4 — atomic uses add-flexbox/add-atomic-* tools since classic writes don't persist on a V4 page). Detects ACF + Crocoblock/JetEngine for dynamic-data binding (Tier-0; bind ACF via Pro dynamic tags, place Jet widgets via add-widget with runtime-verified types). Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/siteagent-elementor-studio`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
+description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro (native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion vs free-tier workarounds) AND the page engine (classic vs Elementor 4 atomic/V4 — atomic uses add-flexbox/add-atomic-* tools since classic writes don't persist on a V4 page). Detects ACF + Crocoblock/JetEngine for dynamic-data binding (Tier-0; bind ACF via Pro dynamic tags, place Jet widgets via add-widget with runtime-verified types). On atomic (V4) sites, authors the Elementor 4 design system — Global Classes, Variables (design tokens), and per-element Interactions — and recovers from the fork's schema-in-error and governance responses. Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/siteagent-elementor-studio`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
 permissions:
   shell: "Runs the bundled setup script (files/setup-elementor-mcp.sh) — only on explicit user confirmation. It shells out to curl/unzip/zip/python3 and, for Local sites, drives Local by Flywheel's bundled WP-CLI (plugin install/activate) against the running site's PHP + MySQL socket."
   network:
@@ -204,6 +204,36 @@ title: "A <em>quiet</em> practice for an <em>uncommon</em> clientele."
 
 Cormorant Garamond and most luxury serifs have italic variants that auto-load when `<em>` appears. Confirm via the rendered page; if italics fail, the global typography needs the italic variant explicitly enabled.
 
+### Responsive values — suffix keys (classic) vs. variants (atomic)
+
+Elementor stores a responsive control's per-breakpoint values under **suffixed keys**.
+The base (desktop) value has **no suffix**; each breakpoint appends its own suffix to the
+**same base control key**, with the **same value shape** as desktop:
+
+```js
+// classic widget — tablet/mobile overrides of the same control:
+mcp__elementor__elementor-mcp-add-heading({
+  post_id, parent_id,
+  title: "...",
+  typography_font_size: {size: 110, unit: "px"},          // desktop (base, no suffix)
+  typography_font_size_tablet: {size: 72, unit: "px"},    // tablet
+  typography_font_size_mobile: {size: 44, unit: "px"},    // mobile
+  align: "left", align_tablet: "center",                  // alignment per breakpoint
+})
+```
+
+**The suffix set is breakpoint-dependent — do NOT hardcode an incomplete list.** It
+derives from Elementor's **active breakpoints** (`add_responsive_control()`), so beyond
+`_tablet` / `_mobile` a site may expose `_widescreen`, `_laptop`, `_tablet_extra`,
+`_mobile_extra`, or custom ones. Read the site's breakpoints rather than assuming; the
+fork passes any `<base>_<breakpoint>` key through as long as `<base>` is a real control.
+
+> **Atomic (V4) is different — no suffix keys.** On a V4 page responsive lives in a style
+> definition's **`variants` array**, keyed by a `breakpoint` meta (`desktop` = base, then
+> `tablet`/`mobile`/custom) — Global Classes take a `variants` param, local styles add
+> variant entries. Never put `_tablet`/`_mobile` suffix keys on atomic elements. See
+> `references/atomic-v4.md` and `references/design-system-crud.md`.
+
 ## The widget-vs-HTML decision — DEFAULT TO NATIVE WIDGETS
 
 > 🚨 **CRITICAL ANTI-PATTERN — read this first.**
@@ -274,6 +304,58 @@ The `f8d1545` is the `element_id` returned when you created the tabs widget. Alw
 ## Building on Elementor 4 (atomic / V4)
 
 Elementor 4 uses an atomic/V4 data model — classic widget writes don't persist on a V4 page. Detect the engine first (see core detection above), then use the atomic tool family. **Full atomic model, tool family, and build order → load `references/atomic-v4.md`.**
+
+> **Atomic local styles wiring.** Atomic styling attaches through **two coupled pieces** —
+> `settings.classes` (a typed list of class ids the element wears) **and** a separate
+> top-level `styles` map holding each class's definition. Every id in `settings.classes`
+> must resolve to a local `styles` entry or a Global Class `g-` id, or it styles nothing.
+> The dedicated helpers keep both in sync; the raw `update-atomic-widget` escape hatch does
+> not — you must write both. Full pattern → `references/atomic-v4.md`.
+
+### Converting a classic (V3) design to atomic (V4)
+
+There's no in-place migrator — you **rebuild** the design on a fresh V4 page with atomic
+tools (classic/atomic never mix). Tool map, `$$type` rules, styling parity, and a worked
+example → **load `references/v3-to-v4-conversion.md`.**
+
+## Elementor 4 design system — Global Classes, Variables, Interactions (v1.14+)
+
+On an **atomic (V4)** site the fork exposes CRUD for the shared design system, so you can
+author reusable styling instead of re-styling every element:
+
+- **Global Classes** (reusable style bundles): `create-global-class`, `update-global-class`,
+  `delete-global-class`, `apply-global-class` (+ read `list-global-classes`).
+- **Variables** (color/font/size design tokens): `list-variables`, `get-variable`,
+  `create-variable`, `edit-variable`, `delete-variable`, `restore-variable`.
+- **Interactions** (per-element scroll/hover/click animations): `list-interactions`,
+  `add-interaction`, `edit-interaction`, `delete-interaction`.
+
+`restore-variable` (undo a soft-deleted token) and `edit-interaction` (id-addressable
+in-place animation edit) are **fork-superset** capabilities the editor path doesn't offer.
+All writes need `manage_options`; these tools register only when the atomic engine +
+matching experiments are on. **Full tool shapes, params, Pro gating, caps, and when to use
+each → load `references/design-system-crud.md`.**
+
+## When a write fails — errors & recovery
+
+The fork's errors are built for self-correction; read them, don't just relay them:
+
+- **Wrong widget name** → `invalid_widget_type` / `widget_not_found` carry `Did you mean:`
+  suggestions **inline in the message** — pick the nearest and retry (no second lookup).
+- **Bad atomic settings** → `save_rejected` embeds the atomic type's **prop schema** inline
+  — correct the settings and retry in one round trip.
+- **Numeric/slider values** → `get-widget-schema` now returns `minimum`/`maximum`/`multipleOf`
+  and slider `unit` enums — clamp to them before writing.
+- **Governance (opt-in, only with the SiteAgent worker):** `governance_grant_required` /
+  `governance_grant_invalid` mean the write needs a gateway-minted approval grant (you can't
+  self-fix — the user must approve); `governance_render_failed` means the write broke the page
+  and **was reverted** (don't blindly re-send — fix the cause); `governance_rollback_failed`
+  means the revert itself failed and the page may be **partially written** — **stop and
+  escalate** with the snapshot id.
+
+**Full recovery playbook (all error codes, retry semantics, range hints) → load
+`references/error-recovery.md`.**
+
 ## Brand kit — intake & tokens
 
 Triggers when the user is setting up a new client / brand, or says "set up the
