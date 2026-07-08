@@ -67,7 +67,8 @@ Manager (`apply-global-class` / `create-global-class`). A local id present in `s
 but missing from `settings.classes` won't apply; an id in `settings.classes` with no
 `styles` entry and no matching global class is a dangling reference that styles nothing.
 The **local `styles` map is built at element-creation time** — the `add-atomic-*` /
-`add-flexbox` helpers (and the universal `add-widget`) auto-compile a local class from the
+`add-flexbox` helpers (and the universal **`add-atomic-widget`** — *not* the classic
+`add-widget`, whose writes don't persist on a V4 page) auto-compile a local class from the
 style props you pass (typography, color, background, …) into the element's `styles` map and
 wire its id into `settings.classes` for you.
 
