@@ -5,6 +5,10 @@ All notable changes to the siteagent-elementor-studio skill kit are documented h
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.3.2 — 2026-07-08
+
+- Reconcile the `detect-elementor-version` guidance in `files/SKILL.md`: the Pro-detection section no longer tells the agent the tool "errors in v1.5.0" / "the buggy version tool" — that schema bug is fixed on current builds (as the Setup-gotchas + call-it sections already stated). The **tool-presence check remains the definitive Pro-vs-Free signal**; `detect-elementor-version` is usable but reports atomic/version support, not a Pro flag. Removes the internal contradiction. No skill-behavior change.
+
 ## 1.3.1 — 2026-07-08
 
 - Refresh `references/engine-and-premium.md` (and the SKILL.md engine line) to current facts: the fork is **v1.24.0**, **up to 118 tools**, and — since **v1.22.0** — carries **no Freemius / no hosted marketplace / no phone-home**. Corrects the stale "v1.9.0 / 94 tools / Freemius auto-update" text, documents the v1.13–v1.24 capability surface (design-system CRUD, governed page + design-token writes, schema-in-error, numeric-range hints), and updates the fork-vs-upstream-Premium (`emcp-pro` 3.0.0) comparison. No skill-behavior change.

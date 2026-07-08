@@ -1,6 +1,6 @@
 ---
 name: siteagent-elementor-studio
-version: 1.3.1
+version: 1.3.2
 license: MIT
 description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro (native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion vs free-tier workarounds) AND the page engine (classic vs Elementor 4 atomic/V4 — atomic uses add-flexbox/add-atomic-* tools since classic writes don't persist on a V4 page). Detects ACF + Crocoblock/JetEngine for dynamic-data binding (Tier-0; bind ACF via Pro dynamic tags, place Jet widgets via add-widget with runtime-verified types). On atomic (V4) sites, authors the Elementor 4 design system — Global Classes, Variables (design tokens), and per-element Interactions — and recovers from the fork's schema-in-error and governance responses. Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/siteagent-elementor-studio`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
 permissions:
@@ -91,7 +91,7 @@ Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion); without it you use the
 free-tier workarounds documented further down (Fluent Forms, UAE/HFE, HTML for
 motion).
 
-**How to detect — by tool availability, not the buggy version tool:**
+**How to detect — by tool availability (the definitive Pro signal):**
 
 The elementor-mcp server exposes Pro tools **conditionally**. When Pro is active
 the tool list grows from ~74 to ~100+ tools and Pro-only tools appear. Check
@@ -103,8 +103,10 @@ whether these exist in your available `mcp__elementor__elementor-mcp-*` tools:
 - `create-popup`, `set-dynamic-tag` — present ⇒ **Pro active**
 
 If none of those Pro tools are exposed, treat the site as **Free** and use the
-workarounds. **Do NOT call `detect-elementor-version`** — it errors in v1.5.0
-(`elementor_pro_version` null vs. schema `string`, see Setup gotchas).
+workarounds. The **tool-presence check above is the definitive Pro-vs-Free
+signal** — prefer it. (`detect-elementor-version` is reliable on current builds —
+the old v1.5.0 schema bug is fixed — but it reports **atomic/version** support,
+not a Pro flag, so it doesn't settle Pro-vs-Free on its own.)
 
 > **Record the verdict once** ("Pro detected" / "Free only") and state it to the
 > user up front, then follow the matching branch in every section below. Each
