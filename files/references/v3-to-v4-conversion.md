@@ -88,8 +88,11 @@ Then style:
   `create-global-class(label:"hero-shell", styles:{padding:"96px", "max-width":"1360px"})`
   then `apply-global-class(class_id, post_id, element_id: hero_id)`.
 - **One-off?** pass the style params on the dedicated helper (they build the local
-  `styles` map for you). For an atomic type without a helper, hand-build the `styles`
-  map + `settings.classes` via `update-atomic-widget` (raw `$$type`).
+  `styles` map for you) **at creation**. For an atomic type without a dedicated helper,
+  create it with the universal **`add-atomic-widget`** (also creation-time and
+  style-capable) or apply an existing/new **Global Class** — do **not** try to add a
+  `styles` map with `update-atomic-widget`, which merges `settings` only and cannot write
+  the top-level `styles` map (you'd be left with a dangling `settings.classes` reference).
 - **Responsive?** classic used `_tablet` / `_mobile` suffix keys; V4 uses **variants**
   with a `breakpoint` (`create-global-class` `variants`, or the styles-map variant meta).
   See the Responsive sections in `../SKILL.md` and `atomic-v4.md`.
