@@ -40,9 +40,12 @@ persist on an atomic page, and atomic writes don't belong on a classic page.
 
 ### How local styles actually attach — `settings.classes` + the `styles` map
 
-This is the wiring the dedicated helpers do for you, and the wiring you must reproduce
-by hand when using the universal `update-atomic-widget` escape hatch. An atomic element
-carries **two coupled pieces**:
+This is the wiring the creation helpers (`add-atomic-*` / `add-flexbox` / the universal
+`add-atomic-widget`) do for you — and the shape you hand-build only when creating an
+element with raw `$$type` settings. (`update-atomic-widget` can change which classes an
+existing element references via `settings.classes`, but **cannot** write the top-level
+`styles` map — see the note below; to add a *new* local style, recreate the element or use
+a Global Class.) An atomic element carries **two coupled pieces**:
 
 1. **`settings.classes`** — a typed prop listing the class IDs the element wears:
    ```json
