@@ -5,6 +5,15 @@ All notable changes to the siteagent-elementor-studio skill kit are documented h
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.3.0 — 2026-07-08
+
+Capability upgrade — teaches the fork's v1.14–v1.23 contract surface (all claims source-verified against `Digitizers/elementor-mcp`). Four additions:
+
+- **Responsive value rules.** New "Responsive values" section in `SKILL.md`: classic widgets take per-breakpoint values as **suffixed keys** (`typography_font_size_tablet`, `align_mobile`) on the same base control with the same value shape; the suffix set is **breakpoint-dependent** (derives from Elementor's active breakpoints — `_tablet`/`_mobile` plus `_widescreen`/`_laptop`/custom, not a fixed list). Atomic (V4) responsive is **variants**, not suffixes — documented in `references/atomic-v4.md`.
+- **`settings.classes` wiring for atomic local styles.** `references/atomic-v4.md` now explains the two coupled pieces — the typed `settings.classes` reference list **and** the separate top-level `styles` map that defines each class — the rule that every class id must resolve (local style def or Global Class `g-` id), that the local `styles` map is built **at creation** (`add-atomic-*` / `add-flexbox` / the universal `add-atomic-widget`), and that `update-atomic-widget` merges `settings` only — it can change `settings.classes` references but **cannot** write the `styles` map, so restyle by recreating or via a Global Class.
+- **New `references/v3-to-v4-conversion.md`** — rebuilding a classic (V3) design on the atomic (V4) engine: the classic→atomic tool map, never-mix rule, `$$type` envelope cross-reference, styling parity (local styles vs. Global Classes / Variables), a worked hero example, and a conversion checklist.
+- **New v1.14–v1.23 fork surface.** New `references/design-system-crud.md` documents the Elementor 4 design-system CRUD tools — Global Classes (`create-/update-/delete-/apply-global-class`), Variables (`list-/get-/create-/edit-/delete-/restore-variable`), and Interactions (`list-/add-/edit-/delete-interaction`), calling out `restore-variable` + `edit-interaction` as fork-superset capabilities, with Pro gating, caps, and permissions. New `references/error-recovery.md` covers governance errors (`governance_grant_required`/`_grant_invalid`/`_render_failed`/`_rollback_failed` — all opt-in, with retry semantics), schema-in-error recovery loops (`invalid_widget_type`/`widget_not_found` inline suggestions; atomic `save_rejected` inline prop schema), and `get-widget-schema` numeric range hints (`minimum`/`maximum`/`multipleOf`, slider unit enums). `SKILL.md` gains focused sections linking out to all three.
+
 ## 1.2.1 — 2026-07-08
 
 - Fix the skill's H1 title in `files/SKILL.md` (`# Elementor Pro Studio Skill` → `# SiteAgent Elementor Studio Skill`) — a leftover from before the rename that ClawHub renders as the listing header. Also aligns the ClawHub publish display name to **"SiteAgent Elementor Studio"**. No functional change.
