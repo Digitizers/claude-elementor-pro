@@ -256,10 +256,12 @@ The skill, setup script, installers, and docs in this kit are MIT-licensed (see 
 ### Windows note
 
 The plugin ships its skill through a git **symlink** (`skills/` → the in-repo
-source). Cloning with `core.symlinks=false` — the default on many Windows
-setups — turns that link into a plain text file and the skill will not load.
-Before installing on Windows, enable Developer Mode and run
-`git config --global core.symlinks true`, or use WSL. macOS/Linux need nothing.
+source). On Windows, enable Developer Mode and set
+`git config --global core.symlinks true` **before** cloning or installing —
+the plugin cache clone inherits it. Changing the config does not repair an
+existing checkout (the repo may have recorded `core.symlinks=false` locally):
+inside it run `git config core.symlinks true && git checkout -- .`, or
+re-clone. WSL also works. macOS/Linux need nothing.
 
 ---
 
