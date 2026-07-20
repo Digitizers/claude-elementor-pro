@@ -4,7 +4,7 @@
 # WordPress site (Local-by-Flywheel or live host) and write a .mcp.json
 # in the current directory so Claude Code can drive Elementor.
 #
-# Usage:  bash <skill-dir>/setup-elementor-mcp.sh
+# Usage:  bash "<skill-dir>/setup-elementor-mcp.sh"
 #         (where <skill-dir> is the skill's announced base directory)
 #         Fallback for manual installs: bash ~/.claude/scripts/setup-elementor-mcp.sh
 #
