@@ -1,6 +1,6 @@
 ---
 name: siteagent-elementor-studio
-version: 1.3.2
+version: 1.3.3
 license: MIT
 description: Helps with WordPress + Elementor work via the elementor-mcp MCP server — building new pages, editing existing ones, inspecting site state, or exploring what's possible. Auto-detects Elementor Pro (native Form, Theme Builder, Loop Grid, Popups, Dynamic Tags, Sticky/Motion vs free-tier workarounds) AND the page engine (classic vs Elementor 4 atomic/V4 — atomic uses add-flexbox/add-atomic-* tools since classic writes don't persist on a V4 page). Detects ACF + Crocoblock/JetEngine for dynamic-data binding (Tier-0; bind ACF via Pro dynamic tags, place Jet widgets via add-widget with runtime-verified types). On atomic (V4) sites, authors the Elementor 4 design system — Global Classes, Variables (design tokens), and per-element Interactions — and recovers from the fork's schema-in-error and governance responses. Asks what the user wants before acting. Use when the user references the Elementor MCP, invokes `/siteagent-elementor-studio`, or runs `mcp__elementor__elementor-mcp-*` tools. Also covers initial install of the MCP Adapter + elementor-mcp plugins, app-password auth wiring, schema-loading discipline, and the widget-vs-HTML decision tree. SKIP for Bricks, Divi, Beaver Builder, or non-Elementor WordPress builds.
 permissions:
@@ -64,7 +64,13 @@ That's it for unprompted tool calls. **Anything that creates, modifies, or delet
 If the user has a WordPress site but no `.mcp.json` and no `elementor` MCP loaded:
 
 1. **Check whether they're using Local-by-Flywheel or a live host.** Setup paths differ.
-2. **Run the bundled setup script** at `~/.claude/scripts/setup-elementor-mcp.sh` — it handles plugin install, auth wiring, and `.mcp.json` generation interactively for both flavors.
+2. **Run the bundled setup script** from the loaded skill's directory — it handles plugin install, auth wiring, and `.mcp.json` generation interactively for both flavors. The skill's base directory is announced when this skill loads (look for the filesystem path in the skill load message). Replace `<skill-dir>` with that announced path:
+   ```bash
+   bash "<skill-dir>/setup-elementor-mcp.sh"
+   ```
+   Keep the quotes — plugin-cache paths can contain spaces (e.g. a Windows
+   profile named `First Last`), and an unquoted substitution splits the path.
+   **If `<skill-dir>/setup-elementor-mcp.sh` is not found** (e.g., from a manual `INSTALL.sh` run instead of plugin-marketplace), use the fallback path for manual installations:
    ```bash
    bash ~/.claude/scripts/setup-elementor-mcp.sh
    ```

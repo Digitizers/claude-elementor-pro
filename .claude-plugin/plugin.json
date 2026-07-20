@@ -1,0 +1,6 @@
+{
+  "name": "siteagent-elementor-studio",
+  "displayName": "SiteAgent Elementor Studio",
+  "description": "Build WordPress sites with Claude Code via the Elementor MCP — native-widget-first building, Elementor 4 design system, brand kit intake, recipes, and error recovery.",
+  "author": { "name": "Digitizer" }
+}

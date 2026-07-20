@@ -109,7 +109,7 @@ You **don't install these yourself.** The setup wizard downloads them from GitHu
 The two files in this repo's `files/` folder get copied to:
 
 - `~/.claude/skills/siteagent-elementor-studio/SKILL.md` — the cheat sheet Claude reads each session
-- `~/.claude/scripts/setup-elementor-mcp.sh` — the wizard you run per WordPress site
+- `~/.claude/scripts/setup-elementor-mcp.sh` — the wizard you run per WordPress site (manual installs; plugin/marketplace installs run it from the loaded skill's own directory instead — the skill knows to do this)
 
 > 📋 **Want a one-page reference of every file/plugin the kit touches?** See [`docs/WHATS_INSTALLED.md`](docs/WHATS_INSTALLED.md).
 
@@ -250,6 +250,24 @@ It also wraps two existing open-source WordPress projects:
 Both plugins are GPL-licensed and are downloaded from GitHub Releases by the setup script.
 
 The skill, setup script, installers, and docs in this kit are MIT-licensed (see [LICENSE](LICENSE)).
+
+---
+
+### Windows note
+
+The plugin ships its skill through a git **symlink** (`skills/` → the in-repo
+source). On Windows, enable Developer Mode and set
+`git config --global core.symlinks true` **before** cloning or installing —
+the plugin cache clone inherits it. Changing the config does not repair an
+existing checkout (the repo may have recorded `core.symlinks=false` locally).
+To repair one, run these two commands inside it (the second re-materializes
+only the plugin's symlink entries, so nothing else in your working tree is
+touched):
+
+    git config core.symlinks true
+    git checkout -- skills/ .claude/skills/
+
+Or simply re-clone. WSL also works. macOS/Linux need nothing.
 
 ---
 

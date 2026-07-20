@@ -1,0 +1,17 @@
+{
+  "extraKnownMarketplaces": {
+    "digitizer-skills": {
+      "source": { "source": "github", "repo": "Digitizers/agent-skills" }
+    }
+  },
+  "enabledPlugins": {
+    "agent-skills@digitizer-skills": true,
+    "cloudways-mcp@digitizer-skills": true,
+    "hostinger-mcp@digitizer-skills": true,
+    "aura-mcp@digitizer-skills": true,
+    "wordpress-api-pro@digitizer-skills": true,
+    "siteagent-elementor-studio@digitizer-skills": true,
+    "meta-ads-mcp@digitizer-skills": true,
+    "sumit-mcp@digitizer-skills": true
+  }
+}
