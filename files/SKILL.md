@@ -66,8 +66,10 @@ If the user has a WordPress site but no `.mcp.json` and no `elementor` MCP loade
 1. **Check whether they're using Local-by-Flywheel or a live host.** Setup paths differ.
 2. **Run the bundled setup script** from the loaded skill's directory — it handles plugin install, auth wiring, and `.mcp.json` generation interactively for both flavors. The skill's base directory is announced when this skill loads (look for the filesystem path in the skill load message). Replace `<skill-dir>` with that announced path:
    ```bash
-   bash <skill-dir>/setup-elementor-mcp.sh
+   bash "<skill-dir>/setup-elementor-mcp.sh"
    ```
+   Keep the quotes — plugin-cache paths can contain spaces (e.g. a Windows
+   profile named `First Last`), and an unquoted substitution splits the path.
    **If `<skill-dir>/setup-elementor-mcp.sh` is not found** (e.g., from a manual `INSTALL.sh` run instead of plugin-marketplace), use the fallback path for manual installations:
    ```bash
    bash ~/.claude/scripts/setup-elementor-mcp.sh
