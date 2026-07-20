@@ -5,6 +5,15 @@ All notable changes to the siteagent-elementor-studio skill kit are documented h
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.3.3 — 2026-07-21
+
+- First-session setup now resolves `setup-elementor-mcp.sh` from the **loaded
+  skill's own directory** (plugin/marketplace installs bundle it there), with
+  `~/.claude/scripts/setup-elementor-mcp.sh` kept as the manual-install
+  fallback — plugin users previously hit "file not found" because only
+  `INSTALL.sh` creates the home-directory copy. README cross-references
+  clarified to match.
+
 ## 1.3.2 — 2026-07-08
 
 - Reconcile the `detect-elementor-version` guidance in `files/SKILL.md`: the Pro-detection section no longer tells the agent the tool "errors in v1.5.0" / "the buggy version tool" — that schema bug is fixed on current builds (as the Setup-gotchas + call-it sections already stated). The **tool-presence check remains the definitive Pro-vs-Free signal**; `detect-elementor-version` is usable but reports atomic/version support, not a Pro flag. Removes the internal contradiction. No skill-behavior change.

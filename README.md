@@ -109,7 +109,7 @@ You **don't install these yourself.** The setup wizard downloads them from GitHu
 The two files in this repo's `files/` folder get copied to:
 
 - `~/.claude/skills/siteagent-elementor-studio/SKILL.md` — the cheat sheet Claude reads each session
-- `~/.claude/scripts/setup-elementor-mcp.sh` — the wizard you run per WordPress site
+- `~/.claude/scripts/setup-elementor-mcp.sh` — the wizard you run per WordPress site (manual installs; plugin/marketplace installs run it from the loaded skill's own directory instead — the skill knows to do this)
 
 > 📋 **Want a one-page reference of every file/plugin the kit touches?** See [`docs/WHATS_INSTALLED.md`](docs/WHATS_INSTALLED.md).
 
