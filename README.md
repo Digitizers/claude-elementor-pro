@@ -259,24 +259,11 @@ The plugin ships its skill through a git **symlink** (`skills/` → the in-repo
 source). On Windows, enable Developer Mode and set
 `git config --global core.symlinks true` **before** cloning or installing —
 the plugin cache clone inherits it. Changing the config does not repair an
-existing checkout (the repo may have recorded `core.symlinks=false` locally):
-inside it run `git config core.symlinks true && git checkout -- .`, or
-re-clone. WSL also works. macOS/Linux need nothing.
+existing checkout (the repo may have recorded `core.symlinks=false` locally).
+To repair one, run these two commands inside it (the second re-materializes
+only the `skills/` entry, so nothing else in your working tree is touched):
 
----
+    git config core.symlinks true
+    git checkout -- skills/
 
-## Questions?
-
-Open an issue on this repo. Don't promise me you'll wait for an answer, but I read everything.
-
-## Links
-
-- **Repository:** https://github.com/Digitizers/siteagent-elementor-studio
-- **OpenClaw:** https://openclaw.ai
-- **Elementor MCP server (our fork):** https://github.com/Digitizers/elementor-mcp
-- **Original elementor-mcp (credit: @msrbuilds):** https://github.com/msrbuilds/elementor-mcp
-- **Digitizer:** https://www.digitizer.studio
-
----
-
-Built with ❤️ for OpenClaw by [Digitizer](https://www.digitizer.studio)
+Or simply re-clone. WSL also works. macOS/Linux need nothing.
