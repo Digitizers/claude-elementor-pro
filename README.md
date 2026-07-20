@@ -261,10 +261,11 @@ source). On Windows, enable Developer Mode and set
 the plugin cache clone inherits it. Changing the config does not repair an
 existing checkout (the repo may have recorded `core.symlinks=false` locally).
 To repair one, run these two commands inside it (the second re-materializes
-only the `skills/` entry, so nothing else in your working tree is touched):
+only the plugin's symlink entries, so nothing else in your working tree is
+touched):
 
     git config core.symlinks true
-    git checkout -- skills/
+    git checkout -- skills/ .claude/skills/
 
 Or simply re-clone. WSL also works. macOS/Linux need nothing.
 
