@@ -267,3 +267,21 @@ only the `skills/` entry, so nothing else in your working tree is touched):
     git checkout -- skills/
 
 Or simply re-clone. WSL also works. macOS/Linux need nothing.
+
+---
+
+## Questions?
+
+Open an issue on this repo. Don't promise me you'll wait for an answer, but I read everything.
+
+## Links
+
+- **Repository:** https://github.com/Digitizers/siteagent-elementor-studio
+- **OpenClaw:** https://openclaw.ai
+- **Elementor MCP server (our fork):** https://github.com/Digitizers/elementor-mcp
+- **Original elementor-mcp (credit: @msrbuilds):** https://github.com/msrbuilds/elementor-mcp
+- **Digitizer:** https://www.digitizer.studio
+
+---
+
+Built with ❤️ for OpenClaw by [Digitizer](https://www.digitizer.studio)
