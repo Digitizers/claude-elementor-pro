@@ -5,6 +5,41 @@ All notable changes to the siteagent-elementor-studio skill kit are documented h
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.4.0 — 2026-07-21
+
+- **Committed `.mcp.json`** (secrets as placeholders only) — the `elementor` connection now
+  comes up from env vars alone: `WP_URL` / `WP_USERNAME` / `WP_APP_PASSWORD` (the same trio
+  `wordpress-api-pro` reads) drive the `@msrbuilds/emcp-proxy` bridge via `npx`. claude.ai
+  cloud environments (which load the repo's `.mcp.json` from the clone and inject env vars
+  from the environment config) and devices with the vars in their shell get the Elementor
+  tools with no per-machine setup. The `${VAR:-}` defaults keep the config parseable when the
+  vars are unset — the connection then just shows as unavailable until they're provided (a
+  bare unset `${VAR}` would fail the whole config parse, per the Claude Code docs — Codex
+  round-1 P2). Real credentials never enter the tracked file. `.claude/settings.json` sets
+  `enableAllProjectMcpServers` so the committed config is auto-approved once the folder is
+  trusted — untrusted checkouts deliberately ignore the committed key (v2.1.196+) and
+  prompt once.
+- The proxy launch is **version-pinned** (`@msrbuilds/emcp-proxy@1.9.1`), not `@latest` —
+  the config is auto-approved and receives WordPress credentials, so an unpinned latest
+  would be a standing supply-chain risk; bump the pin deliberately (Codex round-1 P1).
+- **Both `.mcp.json` writers now refuse to write credentials into a tracked placeholder
+  config** (Codex round-1 + round-2 P2): the interactive wizard, run inside this repo's
+  checkout, would previously have untracked the committed config (`git rm --cached`) and
+  replaced it with a real-credential file; the non-interactive `new-client.sh`
+  (`--project-dir` at a checkout) would have overwritten it outright, putting the
+  Basic-auth credential straight into `git diff`. Both now detect the tracked placeholder
+  (`"WP_URL": "${WP_URL` marker + `git ls-files`) and point to the env-var route or a
+  separate per-site project directory; everywhere else they keep writing the git-ignored
+  per-project config as before.
+- **Honest wizard outcome + first-session routing for the placeholder case** (Codex
+  round-3 P2s): when the interactive wizard skips the write because of the tracked
+  placeholder, it no longer prints "Setup complete → approve the server" (nothing was
+  configured — credentials lived only in shell variables); it now ends with the exact
+  `export WP_URL/WP_USERNAME/WP_APP_PASSWORD` lines to finish the connection, and stops
+  suggesting a Basic-auth config to paste. SKILL.md's first-session predicate no longer
+  treats the mere existence of `.mcp.json` as a connection — a placeholder config with
+  unset env vars routes to the env-var fix or a separate per-site directory.
+
 ## 1.3.3 — 2026-07-21
 
 - First-session setup now resolves `setup-elementor-mcp.sh` from the **loaded

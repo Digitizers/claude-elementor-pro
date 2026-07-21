@@ -5,7 +5,7 @@
 ![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-purple)
 ![Elementor](https://img.shields.io/badge/Elementor-Pro-92003b)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/version-1.3.1-blue)
+![Version](https://img.shields.io/badge/version-1.4.0-blue)
 
 Build **WordPress sites with AI** — design with Claude Code, then have Claude build it directly inside your [Elementor](https://digitizer.li/elementor) Free or Pro site. No more rebuilding mockups by hand.
 
@@ -145,6 +145,22 @@ Safe to re-run — it'll ask before overwriting existing files.
 ---
 
 ## Use it
+
+### Cloud sessions (claude.ai web/phone) — zero-config via env vars
+
+The repo commits a [`.mcp.json`](.mcp.json) that connects through the version-pinned
+`@msrbuilds/emcp-proxy` bridge using the `WP_URL` / `WP_USERNAME` / `WP_APP_PASSWORD`
+environment variables (as `${VAR:-}` placeholders — real credentials never go into the file;
+it is tracked in git). They're the same vars `wordpress-api-pro` reads, so one env set points
+both toolkits at the same site. Set them in the claude.ai cloud environment's env vars (one
+environment per client site works well) or in your shell, and the `elementor` connection
+authenticates on its own. While the vars are unset the connection just shows as unavailable
+in `/mcp` — set them to bring it up. Before exporting credentials — especially in a shared or
+cloud environment — glance at `.mcp.json` on your current checkout: the committed settings
+auto-approve project MCP servers (once the folder is trusted), so make sure the config still
+contains only the pinned proxy and `${VAR:-}` placeholders. Local per-site setups keep using
+the wizard below, which writes a git-ignored per-project config (and refuses to write
+credentials into this tracked one).
 
 ### One-time per WordPress site
 

@@ -1,4 +1,5 @@
 {
+  "enableAllProjectMcpServers": true,
   "extraKnownMarketplaces": {
     "digitizer-skills": {
       "source": { "source": "github", "repo": "Digitizers/agent-skills" }

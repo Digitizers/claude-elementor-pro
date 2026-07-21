@@ -862,10 +862,23 @@ AUTH_B64=$(printf "%s:%s" "$WP_USER" "$WP_APP_PWD" | python3 -c "import sys,base
 
 # If .mcp.json already exists, merge (don't clobber)
 if [ -f "$MCP_FILE" ]; then
-  warn ".mcp.json already exists at $MCP_FILE"
-  ask "Overwrite? [y/N]"
-  read -r OVR
-  [[ "$OVR" =~ ^[Yy]$ ]] || { info "Leaving existing .mcp.json untouched. New config printed below."; SKIP_WRITE=1; }
+  # A git-TRACKED placeholder config (the kit's committed cloud config, secrets as
+  # ${VAR} env placeholders) must never be replaced with a real-credential file:
+  # gitignore can't protect a tracked path, and untracking it would stage the
+  # committed feature for deletion.
+  if git -C "$PROJECT_DIR" ls-files --error-unmatch .mcp.json >/dev/null 2>&1 \
+     && grep -q '"WP_URL": *"\${WP_URL' "$MCP_FILE" 2>/dev/null; then
+    warn ".mcp.json here is a committed placeholder config (tracked in git) — refusing to write credentials into it."
+    info "  Either: export WP_URL / WP_USERNAME / WP_APP_PASSWORD in your environment (the committed config reads them),"
+    info "  or run this wizard from a separate per-site project directory."
+    SKIP_WRITE=1
+    TRACKED_PLACEHOLDER=1
+  else
+    warn ".mcp.json already exists at $MCP_FILE"
+    ask "Overwrite? [y/N]"
+    read -r OVR
+    [[ "$OVR" =~ ^[Yy]$ ]] || { info "Leaving existing .mcp.json untouched. New config printed below."; SKIP_WRITE=1; }
+  fi
 fi
 
 NEW_CONFIG=$(cat <<JSON
@@ -915,7 +928,7 @@ if [ "${SKIP_WRITE:-0}" != "1" ]; then
   info "  • Use a least-privileged Application Password (only the role you need)."
   info "  • Rotate/revoke that Application Password after setup or client handoff"
   info "    (WP Admin → Users → Profile → Application Passwords → Revoke)."
-else
+elif [ "${TRACKED_PLACEHOLDER:-0}" != "1" ]; then
   echo
   info "Suggested config:"
   echo "$NEW_CONFIG" | sed 's/^/      /'
@@ -928,6 +941,23 @@ if [ "$HAS_PRO" = "yes" ]; then
   printf "\n  ${BOLD}${GREEN}Elementor Pro is active${RESET} — Claude will use native ${BOLD}Form${RESET}, ${BOLD}Theme Builder${RESET},\n  ${BOLD}Loop Grid${RESET}, ${BOLD}Popups${RESET}, ${BOLD}Dynamic Tags${RESET}, and ${BOLD}Sticky/Motion${RESET} (no workaround plugins).\n"
 else
   printf "\n  ${DIM}Free Elementor — Claude will use the documented workarounds (Fluent Forms,\n  UAE/HFE headers). Activate Elementor Pro and re-run this wizard to unlock native\n  Form / Theme Builder / Loop Grid / Popups.${RESET}\n"
+fi
+
+if [ "${TRACKED_PLACEHOLDER:-0}" = "1" ]; then
+cat <<EOF
+
+  ${BOLD}${YELLOW}⚠ Site setup done — the Claude connection is NOT configured yet${RESET}
+
+  This checkout uses the committed placeholder .mcp.json, which reads the
+  connection from environment variables. The wizard did not persist your
+  credentials anywhere. Finish with:
+    export WP_URL="$SITE_URL"
+    export WP_USERNAME="$WP_USER"
+    export WP_APP_PASSWORD="<the application password you entered>"
+  Then restart Claude Code in this directory — or run this wizard again from a
+  separate per-site project directory to write a local .mcp.json instead.
+EOF
+exit 0
 fi
 
 cat <<EOF
