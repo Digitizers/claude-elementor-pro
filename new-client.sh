@@ -265,6 +265,15 @@ if [ -n "$DRY_RUN" ]; then
   info "[dry-run] would write:"; printf '%s\n' "$CONFIG" | sed 's/^/      /'
 else
   [ -d "$PROJECT_DIR" ] || mkdir -p "$PROJECT_DIR"
+  # A git-TRACKED placeholder config (the kit's committed cloud config, secrets as
+  # ${VAR} env placeholders) must never be replaced with a real-credential file —
+  # the Basic-auth credential would land straight in git diff. Same guard as the
+  # interactive wizard.
+  if [ -f "$PROJECT_DIR/.mcp.json" ] \
+     && git -C "$PROJECT_DIR" ls-files --error-unmatch .mcp.json >/dev/null 2>&1 \
+     && grep -q '"WP_URL": *"\${WP_URL' "$PROJECT_DIR/.mcp.json" 2>/dev/null; then
+    abort ".mcp.json at $PROJECT_DIR is a committed placeholder config (tracked in git) — refusing to write credentials into it. Export WP_URL / WP_USERNAME / WP_APP_PASSWORD instead (the committed config reads them), or point --project-dir at a separate per-site directory."
+  fi
   if [ -f "$PROJECT_DIR/.mcp.json" ]; then warn ".mcp.json exists — backing up to .mcp.json.bak"; cp "$PROJECT_DIR/.mcp.json" "$PROJECT_DIR/.mcp.json.bak"; fi
   printf '%s\n' "$CONFIG" > "$PROJECT_DIR/.mcp.json"
   ok "Wrote $PROJECT_DIR/.mcp.json"

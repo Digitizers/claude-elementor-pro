@@ -20,12 +20,15 @@ and the kit is versioned via the `version:` field in `files/SKILL.md`.
 - The proxy launch is **version-pinned** (`@msrbuilds/emcp-proxy@1.9.1`), not `@latest` —
   the config is auto-approved and receives WordPress credentials, so an unpinned latest
   would be a standing supply-chain risk; bump the pin deliberately (Codex round-1 P1).
-- **The per-site wizard now refuses to write credentials into a tracked `.mcp.json`**
-  (Codex round-1 P2): run inside this repo's checkout it previously would have untracked
-  the committed placeholder config (`git rm --cached`) and replaced it with a
-  real-credential file. It now detects the tracked placeholder (`${WP_URL` marker +
-  `git ls-files`) and points to the env-var route or a separate per-site project directory;
-  everywhere else it keeps writing the gitignored per-project config as before.
+- **Both `.mcp.json` writers now refuse to write credentials into a tracked placeholder
+  config** (Codex round-1 + round-2 P2): the interactive wizard, run inside this repo's
+  checkout, would previously have untracked the committed config (`git rm --cached`) and
+  replaced it with a real-credential file; the non-interactive `new-client.sh`
+  (`--project-dir` at a checkout) would have overwritten it outright, putting the
+  Basic-auth credential straight into `git diff`. Both now detect the tracked placeholder
+  (`"WP_URL": "${WP_URL` marker + `git ls-files`) and point to the env-var route or a
+  separate per-site project directory; everywhere else they keep writing the gitignored
+  per-project config as before.
 
 ## 1.3.3 — 2026-07-21
 

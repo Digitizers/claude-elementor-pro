@@ -867,7 +867,7 @@ if [ -f "$MCP_FILE" ]; then
   # gitignore can't protect a tracked path, and untracking it would stage the
   # committed feature for deletion.
   if git -C "$PROJECT_DIR" ls-files --error-unmatch .mcp.json >/dev/null 2>&1 \
-     && grep -q '\${WP_URL' "$MCP_FILE" 2>/dev/null; then
+     && grep -q '"WP_URL": *"\${WP_URL' "$MCP_FILE" 2>/dev/null; then
     warn ".mcp.json here is a committed placeholder config (tracked in git) — refusing to write credentials into it."
     info "  Either: export WP_URL / WP_USERNAME / WP_APP_PASSWORD in your environment (the committed config reads them),"
     info "  or run this wizard from a separate per-site project directory."
