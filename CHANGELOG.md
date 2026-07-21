@@ -16,7 +16,9 @@ and the kit is versioned via the `version:` field in `files/SKILL.md`.
   vars are unset — the connection then just shows as unavailable until they're provided (a
   bare unset `${VAR}` would fail the whole config parse, per the Claude Code docs — Codex
   round-1 P2). Real credentials never enter the tracked file. `.claude/settings.json` sets
-  `enableAllProjectMcpServers` so the committed config is auto-approved.
+  `enableAllProjectMcpServers` so the committed config is auto-approved once the folder is
+  trusted — untrusted checkouts deliberately ignore the committed key (v2.1.196+) and
+  prompt once.
 - The proxy launch is **version-pinned** (`@msrbuilds/emcp-proxy@1.9.1`), not `@latest` —
   the config is auto-approved and receives WordPress credentials, so an unpinned latest
   would be a standing supply-chain risk; bump the pin deliberately (Codex round-1 P1).
