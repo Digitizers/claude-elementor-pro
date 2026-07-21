@@ -5,6 +5,19 @@ All notable changes to the siteagent-elementor-studio skill kit are documented h
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
+## 1.4.0 — 2026-07-21
+
+- **Committed `.mcp.json`** (placeholders only) — the `elementor` connection now comes up
+  from env vars alone: `WP_URL` / `WP_USERNAME` / `WP_APP_PASSWORD` (the same trio
+  `wordpress-api-pro` reads) drive the `@msrbuilds/emcp-proxy` bridge via `npx`. claude.ai
+  cloud environments (which load the repo's `.mcp.json` from the clone and inject env vars
+  from the environment config) and devices with the vars in their shell get the Elementor
+  tools with no per-machine setup; unset vars → server skipped silently. Real credentials
+  never enter the tracked file. `.claude/settings.json` sets `enableAllProjectMcpServers`
+  so the committed config is auto-approved. The per-site wizard
+  (`setup-elementor-mcp.sh`) is unchanged and still writes a gitignored per-project config
+  for local work.
+
 ## 1.3.3 — 2026-07-21
 
 - First-session setup now resolves `setup-elementor-mcp.sh` from the **loaded

@@ -5,7 +5,7 @@
 ![OpenClaw Skill](https://img.shields.io/badge/OpenClaw-Skill-purple)
 ![Elementor](https://img.shields.io/badge/Elementor-Pro-92003b)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/version-1.3.1-blue)
+![Version](https://img.shields.io/badge/version-1.4.0-blue)
 
 Build **WordPress sites with AI** — design with Claude Code, then have Claude build it directly inside your [Elementor](https://digitizer.li/elementor) Free or Pro site. No more rebuilding mockups by hand.
 
@@ -145,6 +145,17 @@ Safe to re-run — it'll ask before overwriting existing files.
 ---
 
 ## Use it
+
+### Cloud sessions (claude.ai web/phone) — zero-config via env vars
+
+The repo commits a placeholder-only [`.mcp.json`](.mcp.json) that connects through the
+`@msrbuilds/emcp-proxy` bridge using the `WP_URL` / `WP_USERNAME` / `WP_APP_PASSWORD`
+environment variables — the same vars `wordpress-api-pro` reads, so one env set points both
+toolkits at the same site. Set them in the claude.ai cloud environment's env vars (one
+environment per client site works well) or in your shell, and the `elementor` connection
+comes up on its own; unset, the server simply doesn't start. Real credentials never go into
+the file — it is tracked in git. Local per-site setups keep using the wizard below, which
+writes a gitignored per-project config.
 
 ### One-time per WordPress site
 
