@@ -872,6 +872,7 @@ if [ -f "$MCP_FILE" ]; then
     info "  Either: export WP_URL / WP_USERNAME / WP_APP_PASSWORD in your environment (the committed config reads them),"
     info "  or run this wizard from a separate per-site project directory."
     SKIP_WRITE=1
+    TRACKED_PLACEHOLDER=1
   else
     warn ".mcp.json already exists at $MCP_FILE"
     ask "Overwrite? [y/N]"
@@ -927,7 +928,7 @@ if [ "${SKIP_WRITE:-0}" != "1" ]; then
   info "  • Use a least-privileged Application Password (only the role you need)."
   info "  • Rotate/revoke that Application Password after setup or client handoff"
   info "    (WP Admin → Users → Profile → Application Passwords → Revoke)."
-else
+elif [ "${TRACKED_PLACEHOLDER:-0}" != "1" ]; then
   echo
   info "Suggested config:"
   echo "$NEW_CONFIG" | sed 's/^/      /'
@@ -940,6 +941,23 @@ if [ "$HAS_PRO" = "yes" ]; then
   printf "\n  ${BOLD}${GREEN}Elementor Pro is active${RESET} — Claude will use native ${BOLD}Form${RESET}, ${BOLD}Theme Builder${RESET},\n  ${BOLD}Loop Grid${RESET}, ${BOLD}Popups${RESET}, ${BOLD}Dynamic Tags${RESET}, and ${BOLD}Sticky/Motion${RESET} (no workaround plugins).\n"
 else
   printf "\n  ${DIM}Free Elementor — Claude will use the documented workarounds (Fluent Forms,\n  UAE/HFE headers). Activate Elementor Pro and re-run this wizard to unlock native\n  Form / Theme Builder / Loop Grid / Popups.${RESET}\n"
+fi
+
+if [ "${TRACKED_PLACEHOLDER:-0}" = "1" ]; then
+cat <<EOF
+
+  ${BOLD}${YELLOW}⚠ Site setup done — the Claude connection is NOT configured yet${RESET}
+
+  This checkout uses the committed placeholder .mcp.json, which reads the
+  connection from environment variables. The wizard did not persist your
+  credentials anywhere. Finish with:
+    export WP_URL="$SITE_URL"
+    export WP_USERNAME="$WP_USER"
+    export WP_APP_PASSWORD="<the application password you entered>"
+  Then restart Claude Code in this directory — or run this wizard again from a
+  separate per-site project directory to write a local .mcp.json instead.
+EOF
+exit 0
 fi
 
 cat <<EOF

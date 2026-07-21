@@ -29,6 +29,14 @@ and the kit is versioned via the `version:` field in `files/SKILL.md`.
   (`"WP_URL": "${WP_URL` marker + `git ls-files`) and point to the env-var route or a
   separate per-site project directory; everywhere else they keep writing the gitignored
   per-project config as before.
+- **Honest wizard outcome + first-session routing for the placeholder case** (Codex
+  round-3 P2s): when the interactive wizard skips the write because of the tracked
+  placeholder, it no longer prints "Setup complete → approve the server" (nothing was
+  configured — credentials lived only in shell variables); it now ends with the exact
+  `export WP_URL/WP_USERNAME/WP_APP_PASSWORD` lines to finish the connection, and stops
+  suggesting a Basic-auth config to paste. SKILL.md's first-session predicate no longer
+  treats the mere existence of `.mcp.json` as a connection — a placeholder config with
+  unset env vars routes to the env-var fix or a separate per-site directory.
 
 ## 1.3.3 — 2026-07-21
 

@@ -61,7 +61,9 @@ That's it for unprompted tool calls. **Anything that creates, modifies, or delet
 
 > **Engine:** this skill drives our fork `Digitizers/elementor-mcp` (v1.24.0, up to 118 tools, Elementor 4.x-correct), a single self-contained plugin — no Freemius, no phone-home. **Never run it alongside the paid "MCP Tools for Elementor (Premium)" — same class names → fatal.** Details + switch commands → `references/engine-and-premium.md`.
 
-If the user has a WordPress site but no `.mcp.json` and no `elementor` MCP loaded:
+If the user has a WordPress site but no **working** `elementor` MCP connection — either no `.mcp.json` at all, or only this kit's committed placeholder config (values like `"WP_URL": "${WP_URL:-}"` with those env vars unset) and no `mcp__elementor__elementor-mcp-*` tools loaded:
+
+> In the placeholder case there are two fixes, not one: **export `WP_URL` / `WP_USERNAME` / `WP_APP_PASSWORD`** (the committed config reads them — fastest in this repo's checkout or a cloud session), or run the wizard below from a **separate per-site project directory** (it refuses to write credentials into the tracked placeholder file).
 
 1. **Check whether they're using Local-by-Flywheel or a live host.** Setup paths differ.
 2. **Run the bundled setup script** from the loaded skill's directory — it handles plugin install, auth wiring, and `.mcp.json` generation interactively for both flavors. The skill's base directory is announced when this skill loads (look for the filesystem path in the skill load message). Replace `<skill-dir>` with that announced path:
