@@ -29,7 +29,7 @@ and the kit is versioned via the `version:` field in `files/SKILL.md`.
   (`--project-dir` at a checkout) would have overwritten it outright, putting the
   Basic-auth credential straight into `git diff`. Both now detect the tracked placeholder
   (`"WP_URL": "${WP_URL` marker + `git ls-files`) and point to the env-var route or a
-  separate per-site project directory; everywhere else they keep writing the gitignored
+  separate per-site project directory; everywhere else they keep writing the git-ignored
   per-project config as before.
 - **Honest wizard outcome + first-session routing for the placeholder case** (Codex
   round-3 P2s): when the interactive wizard skips the write because of the tracked

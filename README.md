@@ -159,7 +159,7 @@ in `/mcp` — set them to bring it up. Before exporting credentials — especial
 cloud environment — glance at `.mcp.json` on your current checkout: the committed settings
 auto-approve project MCP servers (once the folder is trusted), so make sure the config still
 contains only the pinned proxy and `${VAR:-}` placeholders. Local per-site setups keep using
-the wizard below, which writes a gitignored per-project config (and refuses to write
+the wizard below, which writes a git-ignored per-project config (and refuses to write
 credentials into this tracked one).
 
 ### One-time per WordPress site
