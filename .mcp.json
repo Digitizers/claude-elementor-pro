@@ -1,14 +1,14 @@
 {
-  "_comment": "Committed connection config — env-var placeholders ONLY, never real credentials (tracked file). The elementor connection starts when WP_URL / WP_USERNAME / WP_APP_PASSWORD are set — the same vars wordpress-api-pro uses, so one env set targets the same site with both toolkits. On devices set them in the shell; in claude.ai cloud environments set them in the environment's env vars (one environment per client site works well). Unset, the server is skipped silently. The npx proxy bridges stdio to the site's /wp-json/mcp/elementor-mcp-server endpoint; per-site local setups keep using files/setup-elementor-mcp.sh, which writes a gitignored per-project config.",
+  "_comment": "Committed connection config — never real credentials; the WordPress values are ${VAR:-} env placeholders (tracked file). The elementor connection authenticates when WP_URL / WP_USERNAME / WP_APP_PASSWORD are set — the same vars wordpress-api-pro uses, so one env set targets the same site with both toolkits. On devices set them in the shell; in claude.ai cloud environments set them in the environment's env vars (one environment per client site works well). The :- defaults keep the config parseable when the vars are unset — the connection then just shows as unavailable in /mcp until they're provided. The proxy version is pinned (bump deliberately; the config is auto-approved, so an unpinned latest would be a supply-chain risk). Per-site local setups keep using files/setup-elementor-mcp.sh, which writes a gitignored per-project config and refuses to overwrite this tracked one.",
   "mcpServers": {
     "elementor": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@msrbuilds/emcp-proxy@latest"],
+      "args": ["-y", "@msrbuilds/emcp-proxy@1.9.1"],
       "env": {
-        "WP_URL": "${WP_URL}",
-        "WP_USERNAME": "${WP_USERNAME}",
-        "WP_APP_PASSWORD": "${WP_APP_PASSWORD}"
+        "WP_URL": "${WP_URL:-}",
+        "WP_USERNAME": "${WP_USERNAME:-}",
+        "WP_APP_PASSWORD": "${WP_APP_PASSWORD:-}"
       }
     }
   }

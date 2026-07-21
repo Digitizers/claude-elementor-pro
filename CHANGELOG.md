@@ -7,16 +7,25 @@ and the kit is versioned via the `version:` field in `files/SKILL.md`.
 
 ## 1.4.0 — 2026-07-21
 
-- **Committed `.mcp.json`** (placeholders only) — the `elementor` connection now comes up
-  from env vars alone: `WP_URL` / `WP_USERNAME` / `WP_APP_PASSWORD` (the same trio
+- **Committed `.mcp.json`** (secrets as placeholders only) — the `elementor` connection now
+  comes up from env vars alone: `WP_URL` / `WP_USERNAME` / `WP_APP_PASSWORD` (the same trio
   `wordpress-api-pro` reads) drive the `@msrbuilds/emcp-proxy` bridge via `npx`. claude.ai
   cloud environments (which load the repo's `.mcp.json` from the clone and inject env vars
   from the environment config) and devices with the vars in their shell get the Elementor
-  tools with no per-machine setup; unset vars → server skipped silently. Real credentials
-  never enter the tracked file. `.claude/settings.json` sets `enableAllProjectMcpServers`
-  so the committed config is auto-approved. The per-site wizard
-  (`setup-elementor-mcp.sh`) is unchanged and still writes a gitignored per-project config
-  for local work.
+  tools with no per-machine setup. The `${VAR:-}` defaults keep the config parseable when the
+  vars are unset — the connection then just shows as unavailable until they're provided (a
+  bare unset `${VAR}` would fail the whole config parse, per the Claude Code docs — Codex
+  round-1 P2). Real credentials never enter the tracked file. `.claude/settings.json` sets
+  `enableAllProjectMcpServers` so the committed config is auto-approved.
+- The proxy launch is **version-pinned** (`@msrbuilds/emcp-proxy@1.9.1`), not `@latest` —
+  the config is auto-approved and receives WordPress credentials, so an unpinned latest
+  would be a standing supply-chain risk; bump the pin deliberately (Codex round-1 P1).
+- **The per-site wizard now refuses to write credentials into a tracked `.mcp.json`**
+  (Codex round-1 P2): run inside this repo's checkout it previously would have untracked
+  the committed placeholder config (`git rm --cached`) and replaced it with a
+  real-credential file. It now detects the tracked placeholder (`${WP_URL` marker +
+  `git ls-files`) and points to the env-var route or a separate per-site project directory;
+  everywhere else it keeps writing the gitignored per-project config as before.
 
 ## 1.3.3 — 2026-07-21
 
